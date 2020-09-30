@@ -1,0 +1,51 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "connections_twitter_name": {
+            "value": null
+        },
+        "sites_Mcd79GraphSearchConnector_name": {
+            "value": null
+        },
+        "sites_Mcd79TwitterSearchConnector_name": {
+            "value": null
+        },
+        "workflows_Mcd79Twitter_CollabTalk_name": {
+            "value": null
+        },
+        "components_mcd79twittersearchconnec_name": {
+            "value": null
+        },
+        "workflows_Mcd79TwitterSearchCollabTalk_name": {
+            "value": null
+        },
+        "components_Mcd79GraphSearchConnector_name": {
+            "value": null
+        },
+        "storageAccounts_storageaccountmcd7999fa_name": {
+            "value": null
+        },
+        "workflows_Mcd79TwitterSearchConnectorSetup_name": {
+            "value": null
+        },
+        "storageAccounts_mcd79twittersearchconnec_name": {
+            "value": null
+        },
+        "serverfarms_Mcd79TwitterSearchConnector_Plan_name": {
+            "value": null
+        },
+        "serverfarms_ASP_Mcd79TwitterSearchConnector_a787_name": {
+            "value": null
+        },
+        "smartdetectoralertrules_failure_anomalies___mcd79twittersearchconnec_name": {
+            "value": null
+        },
+        "smartdetectoralertrules_failure_anomalies___mcd79graphsearchconnector_name": {
+            "value": null
+        },
+        "actiongroups_application_insights_smart_detection_externalid": {
+            "value": null
+        }
+    }
+}

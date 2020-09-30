@@ -1,0 +1,84 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "HTTP": {
+                "inputs": {
+                    "authentication": {
+                        "audience": "https://graph.microsoft.com",
+                        "clientId": "",
+                        "secret": "",
+                        "tenant": "",
+                        "type": "ActiveDirectoryOAuth"
+                    },
+                    "body": {
+                        "acl": [
+                            {
+                                "accessType": "grant",
+                                "identitySource": "azureActiveDirectory",
+                                "type": "everyone",
+                                "value": "43c5e796-f484-4157-8c93-73ac8b1cf7bf"
+                            }
+                        ],
+                        "content": {
+                            "type": "text",
+                            "value": "@{triggerBody()?['TweetText']}"
+                        },
+                        "properties": {
+                            "TweetByFullName": "@{triggerBody()?['UserDetails']?['FullName']}",
+                            "TweetId": "@{triggerBody()?['TweetId']}",
+                            "TweetText": "@{triggerBody()?['TweetText']}",
+                            "TweetedByUserName": "@{triggerBody()?['UserDetails']?['UserName']}"
+                        },
+                        "type": "microsoft.graph.externalItem"
+                    },
+                    "method": "PUT",
+                    "uri": "https://graph.microsoft.com/beta/external/connections/Mcd79TwitterSearchConnector/items/@{triggerBody()?['TweetId']}"
+                },
+                "runAfter": {},
+                "type": "Http"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "When_a_Collabtalk_tweet_is_posted": {
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['twitter']['connectionId']"
+                        }
+                    },
+                    "method": "get",
+                    "path": "/onnewtweet",
+                    "queries": {
+                        "searchQuery": "#CollabTalk"
+                    }
+                },
+                "recurrence": {
+                    "frequency": "Day",
+                    "interval": 1
+                },
+                "splitOn": "@triggerBody()?['value']",
+                "type": "ApiConnection"
+            }
+        }
+    },
+    "parameters": {
+        "$connections": {
+            "value": {
+                "twitter": {
+                    "connectionId": "/subscriptions/6951ada6-6409-48d7-8199-f09893b21c48/resourceGroups/Mcd79TwitterSearchConnector/providers/Microsoft.Web/connections/twitter",
+                    "connectionName": "twitter",
+                    "id": "/subscriptions/6951ada6-6409-48d7-8199-f09893b21c48/providers/Microsoft.Web/locations/uksouth/managedApis/twitter"
+                }
+            }
+        }
+    }
+}

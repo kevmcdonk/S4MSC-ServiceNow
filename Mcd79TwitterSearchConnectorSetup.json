@@ -1,0 +1,175 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Check_Mcd79TwitterSearchConnector_exists": {
+                "inputs": {
+                    "authentication": {
+                        "audience": "https://graph.microsoft.com",
+                        "clientId": "",
+                        "secret": "",
+                        "tenant": "",
+                        "type": "ActiveDirectoryOAuth"
+                    },
+                    "method": "GET",
+                    "uri": "https://graph.microsoft.com/beta/external/connections/Mcd79TwitterSearchConnector"
+                },
+                "runAfter": {},
+                "type": "Http"
+            },
+            "Check_schema_exists": {
+                "inputs": {
+                    "authentication": {
+                        "audience": "https://graph.microsoft.com",
+                        "clientId": "",
+                        "secret": "",
+                        "tenant": "",
+                        "type": "ActiveDirectoryOAuth"
+                    },
+                    "method": "GET",
+                    "uri": "https://graph.microsoft.com/beta/external/connections/Mcd79TwitterSearchConnector/schema"
+                },
+                "runAfter": {
+                    "Create_Mcd79TwitterSearchConnector_if_doesn't_exist": [
+                        "Succeeded",
+                        "Skipped"
+                    ]
+                },
+                "type": "Http"
+            },
+            "Create_Mcd79TwitterSearchConnector_if_doesn't_exist": {
+                "inputs": {
+                    "authentication": {
+                        "audience": "https://graph.microsoft.com",
+                        "clientId": "",
+                        "secret": "",
+                        "tenant": "",
+                        "type": "ActiveDirectoryOAuth"
+                    },
+                    "body": {
+                        "description": "Connector for showing key tweets",
+                        "id": "Mcd79TwitterSearchConnector",
+                        "name": "Twitter Connector"
+                    },
+                    "method": "POST",
+                    "uri": "https://graph.microsoft.com/beta/external/connections"
+                },
+                "runAfter": {
+                    "Check_Mcd79TwitterSearchConnector_exists": [
+                        "Failed"
+                    ]
+                },
+                "type": "Http"
+            },
+            "Create_schema_if_it_doesn't_exists": {
+                "inputs": {
+                    "authentication": {
+                        "audience": "https://graph.microsoft.com",
+                        "clientId": "",
+                        "secret": "",
+                        "tenant": "",
+                        "type": "ActiveDirectoryOAuth"
+                    },
+                    "body": {
+                        "baseType": "microsoft.graph.externalItem",
+                        "properties": [
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "TweetText",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "TweetId",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": false,
+                                "name": "CreatedAt",
+                                "type": "DateTime"
+                            },
+                            {
+                                "isQueryable": false,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": false,
+                                "name": "RetweetCount",
+                                "type": "Int64"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "TweetedByUserName",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "TweetByFullName",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "OriginalTweetUserName",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "OriginalTweetFullName",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": false,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": false,
+                                "name": "ProfileImageUrl",
+                                "type": "String"
+                            }
+                        ]
+                    },
+                    "method": "POST",
+                    "uri": "https://graph.microsoft.com/beta/external/connections/Mcd79TwitterSearchConnector/schema"
+                },
+                "runAfter": {
+                    "Check_schema_exists": [
+                        "Failed"
+                    ]
+                },
+                "type": "Http"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {},
+        "triggers": {
+            "manual": {
+                "inputs": {
+                    "schema": {}
+                },
+                "kind": "Http",
+                "type": "Request"
+            }
+        }
+    },
+    "parameters": {}
+}
