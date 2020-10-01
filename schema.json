@@ -1,0 +1,77 @@
+{
+  "baseType": "microsoft.graph.externalItem",
+  "properties": [
+    {
+      "isQueryable": true,
+      "isRefinable": false,
+      "isRetrievable": true,
+      "isSearchable": true,
+      "name": "TweetText",
+      "type": "String"
+    },
+    {
+      "isQueryable": true,
+      "isRefinable": false,
+      "isRetrievable": true,
+      "isSearchable": true,
+      "name": "TweetId",
+      "type": "String"
+    },
+    {
+      "isQueryable": true,
+      "isRefinable": false,
+      "isRetrievable": true,
+      "isSearchable": false,
+      "name": "CreatedAt",
+      "type": "DateTime"
+    },
+    {
+      "isQueryable": false,
+      "isRefinable": false,
+      "isRetrievable": true,
+      "isSearchable": false,
+      "name": "RetweetCount",
+      "type": "Int64"
+    },
+    {
+      "isQueryable": true,
+      "isRefinable": false,
+      "isRetrievable": true,
+      "isSearchable": true,
+      "name": "TweetedByUserName",
+      "type": "String"
+    },
+    {
+      "isQueryable": true,
+      "isRefinable": false,
+      "isRetrievable": true,
+      "isSearchable": true,
+      "name": "TweetByFullName",
+      "type": "String"
+    },
+    {
+      "isQueryable": true,
+      "isRefinable": false,
+      "isRetrievable": true,
+      "isSearchable": true,
+      "name": "OriginalTweetUserName",
+      "type": "String"
+    },
+    {
+      "isQueryable": true,
+      "isRefinable": false,
+      "isRetrievable": true,
+      "isSearchable": true,
+      "name": "OriginalTweetFullName",
+      "type": "String"
+    },
+    {
+      "isQueryable": false,
+      "isRefinable": false,
+      "isRetrievable": true,
+      "isSearchable": false,
+      "name": "ProfileImageUrl",
+      "type": "String"
+    }
+  ]
+}
