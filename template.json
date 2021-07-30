@@ -3,72 +3,30 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "connections_twitter_name": {
-            "defaultValue": "twitter",
+            "defaultValue": "S4MSCTwitter",
             "type": "String"
         },
-        "sites_Mcd79GraphSearchConnector_name": {
-            "defaultValue": "Mcd79GraphSearchConnector",
-            "type": "String"
-        },
-        "sites_Mcd79TwitterSearchConnector_name": {
-            "defaultValue": "Mcd79TwitterSearchConnector",
-            "type": "String"
-        },
-        "workflows_Mcd79Twitter_CollabTalk_name": {
-            "defaultValue": "Mcd79Twitter-CollabTalk",
-            "type": "String"
-        },
-        "components_mcd79twittersearchconnec_name": {
-            "defaultValue": "mcd79twittersearchconnec",
-            "type": "String"
-        },
-        "workflows_Mcd79TwitterSearchCollabTalk_name": {
-            "defaultValue": "Mcd79TwitterSearchCollabTalk",
-            "type": "String"
-        },
-        "components_Mcd79GraphSearchConnector_name": {
-            "defaultValue": "Mcd79GraphSearchConnector",
-            "type": "String"
-        },
-        "storageAccounts_storageaccountmcd7999fa_name": {
-            "defaultValue": "storageaccountmcd7999fa",
-            "type": "String"
-        },
-        "workflows_Mcd79TwitterSearchConnectorSetup_name": {
-            "defaultValue": "Mcd79TwitterSearchConnectorSetup",
-            "type": "String"
-        },
-        "storageAccounts_mcd79twittersearchconnec_name": {
-            "defaultValue": "mcd79twittersearchconnec",
-            "type": "String"
-        },
-        "serverfarms_Mcd79TwitterSearchConnector_Plan_name": {
-            "defaultValue": "Mcd79TwitterSearchConnector-Plan",
-            "type": "String"
-        },
-        "serverfarms_ASP_Mcd79TwitterSearchConnector_a787_name": {
-            "defaultValue": "ASP-Mcd79TwitterSearchConnector-a787",
-            "type": "String"
-        },
-        "smartdetectoralertrules_failure_anomalies___mcd79twittersearchconnec_name": {
-            "defaultValue": "failure anomalies - mcd79twittersearchconnec",
-            "type": "String"
-        },
-        "smartdetectoralertrules_failure_anomalies___mcd79graphsearchconnector_name": {
-            "defaultValue": "failure anomalies - mcd79graphsearchconnector",
-            "type": "String"
-        },
-        "actiongroups_application_insights_smart_detection_externalid": {
-            "defaultValue": "/subscriptions/6951ada6-6409-48d7-8199-f09893b21c48/resourceGroups/whoisheremcd79func/providers/microsoft.insights/actiongroups/application insights smart detection",
+        "region": {
+            "defaultValue": "uksouth",
             "type": "String"
         }
     },
-    "variables": {},
+    "variables": {
+        "sites_SearchConnector_name": "[concat(parameters('connections_twitter_name'),'SearchConnector')]",
+        "sites_GraphSearchConnector_name": "[concat(parameters('connections_twitter_name'),'GraphSearchConnector')]",
+        "workflows_SearchConnectorSetup_name": "[concat('la-',parameters('connections_twitter_name'),'-setup')]",
+        "workflows_SearchConnectorSearch_name": "[concat('la-',parameters('connections_twitter_name'),'-search')]",
+        "workflows_SearchConnectorTrigger_name": "[concat('la-',parameters('connections_twitter_name'),'-trigger')]",
+        "storageAccounts_name": "[replace(toLower(concat('storage',parameters('connections_twitter_name'))),'-','')]",
+        "appServicePlan_name": "[concat('appServicePlan-',parameters('connections_twitter_name'))]",
+        "searchConnector_name": "[concat('appInsights-',parameters('connections_twitter_name'))]"
+    
+    },
     "resources": [
         {
             "type": "microsoft.insights/components",
             "apiVersion": "2018-05-01-preview",
-            "name": "[parameters('components_Mcd79GraphSearchConnector_name')]",
+            "name": "[parameters('connections_twitter_name')]",
             "location": "uksouth",
             "kind": "web",
             "properties": {
@@ -80,22 +38,9 @@
             }
         },
         {
-            "type": "microsoft.insights/components",
-            "apiVersion": "2018-05-01-preview",
-            "name": "[parameters('components_mcd79twittersearchconnec_name')]",
-            "location": "uksouth",
-            "kind": "web",
-            "properties": {
-                "Application_Type": "web",
-                "RetentionInDays": 90,
-                "publicNetworkAccessForIngestion": "Enabled",
-                "publicNetworkAccessForQuery": "Enabled"
-            }
-        },
-        {
             "type": "Microsoft.Logic/workflows",
             "apiVersion": "2017-07-01",
-            "name": "[parameters('workflows_Mcd79TwitterSearchConnectorSetup_name')]",
+            "name": "[variables('workflows_SearchConnectorSetup_name')]",
             "location": "uksouth",
             "identity": {
                 "principalId": "a4a4968c-aa2b-45aa-addf-2bab8358fc91",
@@ -118,7 +63,7 @@
                         }
                     },
                     "actions": {
-                        "Check_Mcd79TwitterSearchConnector_exists": {
+                        "Check_SearchConnector_exists": {
                             "runAfter": {},
                             "type": "Http",
                             "inputs": {
@@ -130,12 +75,12 @@
                                     "type": "ActiveDirectoryOAuth"
                                 },
                                 "method": "GET",
-                                "uri": "https://graph.microsoft.com/beta/external/connections/Mcd79TwitterSearchConnector"
+                                "uri": "[concat('https://graph.microsoft.com/beta/external/connections/',variables('searchConnector_name'))]"
                             }
                         },
                         "Check_schema_exists": {
                             "runAfter": {
-                                "Create_Mcd79TwitterSearchConnector_if_doesn't_exist": [
+                                "Create_SearchConnector_if_doesn't_exist": [
                                     "Succeeded",
                                     "Skipped"
                                 ]
@@ -150,12 +95,12 @@
                                     "type": "ActiveDirectoryOAuth"
                                 },
                                 "method": "GET",
-                                "uri": "https://graph.microsoft.com/beta/external/connections/Mcd79TwitterSearchConnector/schema"
+                                "uri": "[concat('https://graph.microsoft.com/beta/external/connections/',variables('searchConnector_name'),'/schema')]"
                             }
                         },
-                        "Create_Mcd79TwitterSearchConnector_if_doesn't_exist": {
+                        "Create_SearchConnector_if_doesn't_exist": {
                             "runAfter": {
-                                "Check_Mcd79TwitterSearchConnector_exists": [
+                                "Check_SearchConnector_exists": [
                                     "Failed"
                                 ]
                             },
@@ -170,7 +115,7 @@
                                 },
                                 "body": {
                                     "description": "Connector for showing key tweets",
-                                    "id": "Mcd79TwitterSearchConnector",
+                                    "id": "[variables('searchConnector_name')]",
                                     "name": "Twitter Connector"
                                 },
                                 "method": "POST",
@@ -270,7 +215,7 @@
                                     ]
                                 },
                                 "method": "POST",
-                                "uri": "https://graph.microsoft.com/beta/external/connections/Mcd79TwitterSearchConnector/schema"
+                                "uri": "[concat('https://graph.microsoft.com/beta/external/connections/',variables('searchConnector_name'),'/schema')]"
                             }
                         }
                     },
@@ -282,40 +227,7 @@
         {
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2019-06-01",
-            "name": "[parameters('storageAccounts_mcd79twittersearchconnec_name')]",
-            "location": "uksouth",
-            "sku": {
-                "name": "Standard_LRS",
-                "tier": "Standard"
-            },
-            "kind": "Storage",
-            "properties": {
-                "networkAcls": {
-                    "bypass": "AzureServices",
-                    "virtualNetworkRules": [],
-                    "ipRules": [],
-                    "defaultAction": "Allow"
-                },
-                "supportsHttpsTrafficOnly": true,
-                "encryption": {
-                    "services": {
-                        "file": {
-                            "keyType": "Account",
-                            "enabled": true
-                        },
-                        "blob": {
-                            "keyType": "Account",
-                            "enabled": true
-                        }
-                    },
-                    "keySource": "Microsoft.Storage"
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2019-06-01",
-            "name": "[parameters('storageAccounts_storageaccountmcd7999fa_name')]",
+            "name": "[variables('storageAccounts_name')]",
             "location": "uksouth",
             "sku": {
                 "name": "Standard_LRS",
@@ -355,38 +267,14 @@
                 "displayName": "kevmcdonk",
                 "customParameterValues": {},
                 "api": {
-                    "id": "[concat('/subscriptions/6951ada6-6409-48d7-8199-f09893b21c48/providers/Microsoft.Web/locations/uksouth/managedApis/', parameters('connections_twitter_name'))]"
+                    "id": "[concat('/subscriptions/subscriptionid()/providers/Microsoft.Web/locations/',parameters('region'),'/managedApis/', parameters('connections_twitter_name'))]"
                 }
             }
         },
         {
             "type": "Microsoft.Web/serverfarms",
             "apiVersion": "2018-02-01",
-            "name": "[parameters('serverfarms_ASP_Mcd79TwitterSearchConnector_a787_name')]",
-            "location": "UK South",
-            "sku": {
-                "name": "Y1",
-                "tier": "Dynamic",
-                "size": "Y1",
-                "family": "Y",
-                "capacity": 0
-            },
-            "kind": "functionapp",
-            "properties": {
-                "perSiteScaling": false,
-                "maximumElasticWorkerCount": 1,
-                "isSpot": false,
-                "reserved": false,
-                "isXenon": false,
-                "hyperV": false,
-                "targetWorkerCount": 0,
-                "targetWorkerSizeId": 0
-            }
-        },
-        {
-            "type": "Microsoft.Web/serverfarms",
-            "apiVersion": "2018-02-01",
-            "name": "[parameters('serverfarms_Mcd79TwitterSearchConnector_Plan_name')]",
+            "name": "[variables('appServicePlan_name')]",
             "location": "UK South",
             "sku": {
                 "name": "F1",
@@ -408,71 +296,9 @@
             }
         },
         {
-            "type": "microsoft.alertsmanagement/smartdetectoralertrules",
-            "apiVersion": "2019-06-01",
-            "name": "[parameters('smartdetectoralertrules_failure_anomalies___mcd79graphsearchconnector_name')]",
-            "location": "global",
-            "dependsOn": [
-                "[resourceId('microsoft.insights/components', parameters('components_Mcd79GraphSearchConnector_name'))]"
-            ],
-            "properties": {
-                "description": "Failure Anomalies notifies you of an unusual rise in the rate of failed HTTP requests or dependency calls.",
-                "state": "Enabled",
-                "severity": "Sev3",
-                "frequency": "PT1M",
-                "detector": {
-                    "id": "FailureAnomaliesDetector",
-                    "name": "Failure Anomalies",
-                    "description": "Detects if your application experiences an abnormal rise in the rate of HTTP requests or dependency calls that are reported as failed. The anomaly detection uses machine learning algorithms and occurs in near real time, therefore there's no need to define a frequency for this signal.<br/></br/>To help you triage and diagnose the problem, an analysis of the characteristics of the failures and related telemetry is provided with the detection. This feature works for any app, hosted in the cloud or on your own servers, that generates request or dependency telemetry - for example, if you have a worker role that calls <a class=\"ext-smartDetecor-link\" href=\\\"https://docs.microsoft.com/azure/application-insights/app-insights-api-custom-events-metrics#trackrequest\\\" target=\\\"_blank\\\">TrackRequest()</a> or <a class=\"ext-smartDetecor-link\" href=\\\"https://docs.microsoft.com/azure/application-insights/app-insights-api-custom-events-metrics#trackdependency\\\" target=\\\"_blank\\\">TrackDependency()</a>.<br/><br/><a class=\"ext-smartDetecor-link\" href=\\\"https://docs.microsoft.com/azure/azure-monitor/app/proactive-failure-diagnostics\\\" target=\\\"_blank\\\">Learn more about Failure Anomalies</a>",
-                    "supportedResourceTypes": [
-                        "ApplicationInsights"
-                    ]
-                },
-                "scope": [
-                    "[resourceId('microsoft.insights/components', parameters('components_Mcd79GraphSearchConnector_name'))]"
-                ],
-                "actionGroups": {
-                    "groupIds": [
-                        "[parameters('actiongroups_application_insights_smart_detection_externalid')]"
-                    ]
-                }
-            }
-        },
-        {
-            "type": "microsoft.alertsmanagement/smartdetectoralertrules",
-            "apiVersion": "2019-06-01",
-            "name": "[parameters('smartdetectoralertrules_failure_anomalies___mcd79twittersearchconnec_name')]",
-            "location": "global",
-            "dependsOn": [
-                "[resourceId('microsoft.insights/components', parameters('components_mcd79twittersearchconnec_name'))]"
-            ],
-            "properties": {
-                "description": "Failure Anomalies notifies you of an unusual rise in the rate of failed HTTP requests or dependency calls.",
-                "state": "Enabled",
-                "severity": "Sev3",
-                "frequency": "PT1M",
-                "detector": {
-                    "id": "FailureAnomaliesDetector",
-                    "name": "Failure Anomalies",
-                    "description": "Detects if your application experiences an abnormal rise in the rate of HTTP requests or dependency calls that are reported as failed. The anomaly detection uses machine learning algorithms and occurs in near real time, therefore there's no need to define a frequency for this signal.<br/></br/>To help you triage and diagnose the problem, an analysis of the characteristics of the failures and related telemetry is provided with the detection. This feature works for any app, hosted in the cloud or on your own servers, that generates request or dependency telemetry - for example, if you have a worker role that calls <a class=\"ext-smartDetecor-link\" href=\\\"https://docs.microsoft.com/azure/application-insights/app-insights-api-custom-events-metrics#trackrequest\\\" target=\\\"_blank\\\">TrackRequest()</a> or <a class=\"ext-smartDetecor-link\" href=\\\"https://docs.microsoft.com/azure/application-insights/app-insights-api-custom-events-metrics#trackdependency\\\" target=\\\"_blank\\\">TrackDependency()</a>.<br/><br/><a class=\"ext-smartDetecor-link\" href=\\\"https://docs.microsoft.com/azure/azure-monitor/app/proactive-failure-diagnostics\\\" target=\\\"_blank\\\">Learn more about Failure Anomalies</a>",
-                    "supportedResourceTypes": [
-                        "ApplicationInsights"
-                    ]
-                },
-                "scope": [
-                    "[resourceId('microsoft.insights/components', parameters('components_mcd79twittersearchconnec_name'))]"
-                ],
-                "actionGroups": {
-                    "groupIds": [
-                        "[parameters('actiongroups_application_insights_smart_detection_externalid')]"
-                    ]
-                }
-            }
-        },
-        {
             "type": "Microsoft.Logic/workflows",
             "apiVersion": "2017-07-01",
-            "name": "[parameters('workflows_Mcd79Twitter_CollabTalk_name')]",
+            "name": "[variables('workflows_SearchConnectorTrigger_name')]",
             "location": "uksouth",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/connections', parameters('connections_twitter_name'))]"
@@ -529,7 +355,7 @@
         {
             "type": "Microsoft.Logic/workflows",
             "apiVersion": "2017-07-01",
-            "name": "[parameters('workflows_Mcd79TwitterSearchCollabTalk_name')]",
+            "name": "[variables('workflows_SearchConnectorSearch_name')]",
             "location": "uksouth",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/connections', parameters('connections_twitter_name'))]"
@@ -643,29 +469,9 @@
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices",
             "apiVersion": "2019-06-01",
-            "name": "[concat(parameters('storageAccounts_mcd79twittersearchconnec_name'), '/default')]",
+            "name": "[concat(variables('storageAccounts_name'), '/default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_mcd79twittersearchconnec_name'))]"
-            ],
-            "sku": {
-                "name": "Standard_LRS",
-                "tier": "Standard"
-            },
-            "properties": {
-                "cors": {
-                    "corsRules": []
-                },
-                "deleteRetentionPolicy": {
-                    "enabled": false
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/blobServices",
-            "apiVersion": "2019-06-01",
-            "name": "[concat(parameters('storageAccounts_storageaccountmcd7999fa_name'), '/default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_storageaccountmcd7999fa_name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccounts_name'))]"
             ],
             "sku": {
                 "name": "Standard_LRS",
@@ -683,26 +489,9 @@
         {
             "type": "Microsoft.Storage/storageAccounts/fileServices",
             "apiVersion": "2019-06-01",
-            "name": "[concat(parameters('storageAccounts_mcd79twittersearchconnec_name'), '/default')]",
+            "name": "[concat(variables('storageAccounts_name'), '/default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_mcd79twittersearchconnec_name'))]"
-            ],
-            "sku": {
-                "name": "Standard_LRS",
-                "tier": "Standard"
-            },
-            "properties": {
-                "cors": {
-                    "corsRules": []
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/fileServices",
-            "apiVersion": "2019-06-01",
-            "name": "[concat(parameters('storageAccounts_storageaccountmcd7999fa_name'), '/default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_storageaccountmcd7999fa_name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccounts_name'))]"
             ],
             "sku": {
                 "name": "Standard_LRS",
@@ -717,22 +506,9 @@
         {
             "type": "Microsoft.Storage/storageAccounts/queueServices",
             "apiVersion": "2019-06-01",
-            "name": "[concat(parameters('storageAccounts_mcd79twittersearchconnec_name'), '/default')]",
+            "name": "[concat(variables('storageAccounts_name'), '/default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_mcd79twittersearchconnec_name'))]"
-            ],
-            "properties": {
-                "cors": {
-                    "corsRules": []
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/queueServices",
-            "apiVersion": "2019-06-01",
-            "name": "[concat(parameters('storageAccounts_storageaccountmcd7999fa_name'), '/default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_storageaccountmcd7999fa_name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccounts_name'))]"
             ],
             "properties": {
                 "cors": {
@@ -743,22 +519,9 @@
         {
             "type": "Microsoft.Storage/storageAccounts/tableServices",
             "apiVersion": "2019-06-01",
-            "name": "[concat(parameters('storageAccounts_mcd79twittersearchconnec_name'), '/default')]",
+            "name": "[concat(variables('storageAccounts_name'), '/default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_mcd79twittersearchconnec_name'))]"
-            ],
-            "properties": {
-                "cors": {
-                    "corsRules": []
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/tableServices",
-            "apiVersion": "2019-06-01",
-            "name": "[concat(parameters('storageAccounts_storageaccountmcd7999fa_name'), '/default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_storageaccountmcd7999fa_name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccounts_name'))]"
             ],
             "properties": {
                 "cors": {
@@ -769,32 +532,22 @@
         {
             "type": "Microsoft.Web/sites",
             "apiVersion": "2018-11-01",
-            "name": "[parameters('sites_Mcd79GraphSearchConnector_name')]",
+            "name": "[variables('sites_GraphSearchConnector_name')]",
             "location": "UK South",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_ASP_Mcd79TwitterSearchConnector_a787_name'))]"
+                "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlan_name'))]"
             ],
             "kind": "functionapp",
             "identity": {
+                // CHECK THESE
                 "principalId": "c65f03f9-ed85-4f34-b411-6d8d252ad73d",
                 "tenantId": "",
                 "type": "SystemAssigned"
             },
             "properties": {
                 "enabled": true,
-                "hostNameSslStates": [
-                    {
-                        "name": "mcd79graphsearchconnector.azurewebsites.net",
-                        "sslState": "Disabled",
-                        "hostType": "Standard"
-                    },
-                    {
-                        "name": "mcd79graphsearchconnector.scm.azurewebsites.net",
-                        "sslState": "Disabled",
-                        "hostType": "Repository"
-                    }
-                ],
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_ASP_Mcd79TwitterSearchConnector_a787_name'))]",
+
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlan_name'))]",
                 "reserved": false,
                 "isXenon": false,
                 "hyperV": false,
@@ -810,55 +563,12 @@
             }
         },
         {
-            "type": "Microsoft.Web/sites",
-            "apiVersion": "2018-11-01",
-            "name": "[parameters('sites_Mcd79TwitterSearchConnector_name')]",
-            "location": "UK South",
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_Mcd79TwitterSearchConnector_Plan_name'))]"
-            ],
-            "kind": "functionapp,workflowapp",
-            "identity": {
-                "principalId": "057c34a0-b3f3-4d69-bd76-750bb63b53a7",
-                "tenantId": "",
-                "type": "SystemAssigned"
-            },
-            "properties": {
-                "enabled": true,
-                "hostNameSslStates": [
-                    {
-                        "name": "mcd79twittersearchconnector.azurewebsites.net",
-                        "sslState": "Disabled",
-                        "hostType": "Standard"
-                    },
-                    {
-                        "name": "mcd79twittersearchconnector.scm.azurewebsites.net",
-                        "sslState": "Disabled",
-                        "hostType": "Repository"
-                    }
-                ],
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_Mcd79TwitterSearchConnector_Plan_name'))]",
-                "reserved": false,
-                "isXenon": false,
-                "hyperV": false,
-                "siteConfig": {},
-                "scmSiteAlsoStopped": false,
-                "clientAffinityEnabled": false,
-                "clientCertEnabled": false,
-                "hostNamesDisabled": false,
-                "containerSize": 1536,
-                "dailyMemoryTimeQuota": 0,
-                "httpsOnly": false,
-                "redundancyMode": "None"
-            }
-        },
-        {
             "type": "Microsoft.Web/sites/config",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('sites_Mcd79GraphSearchConnector_name'), '/web')]",
+            "name": "[concat(variables('sites_GraphSearchConnector_name'), '/web')]",
             "location": "UK South",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_Mcd79GraphSearchConnector_name'))]"
+                "[resourceId('Microsoft.Web/sites', variables('sites_GraphSearchConnector_name'))]"
             ],
             "properties": {
                 "numberOfWorkers": -1,
@@ -879,7 +589,7 @@
                 "httpLoggingEnabled": false,
                 "logsDirectorySizeLimit": 35,
                 "detailedErrorLoggingEnabled": false,
-                "publishingUsername": "$Mcd79GraphSearchConnector",
+                "publishingUsername": "$GraphSearchConnector",
                 "azureStorageAccounts": {},
                 "scmType": "None",
                 "use32BitWorkerProcess": true,
@@ -934,96 +644,12 @@
             }
         },
         {
-            "type": "Microsoft.Web/sites/config",
-            "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('sites_Mcd79TwitterSearchConnector_name'), '/web')]",
-            "location": "UK South",
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_Mcd79TwitterSearchConnector_name'))]"
-            ],
-            "properties": {
-                "numberOfWorkers": 1,
-                "defaultDocuments": [
-                    "Default.htm",
-                    "Default.html",
-                    "Default.asp",
-                    "index.htm",
-                    "index.html",
-                    "iisstart.htm",
-                    "default.aspx",
-                    "index.php"
-                ],
-                "netFrameworkVersion": "v4.0",
-                "phpVersion": "5.6",
-                "requestTracingEnabled": false,
-                "remoteDebuggingEnabled": false,
-                "httpLoggingEnabled": false,
-                "logsDirectorySizeLimit": 35,
-                "detailedErrorLoggingEnabled": false,
-                "publishingUsername": "$Mcd79TwitterSearchConnector",
-                "azureStorageAccounts": {},
-                "scmType": "None",
-                "use32BitWorkerProcess": true,
-                "webSocketsEnabled": false,
-                "alwaysOn": false,
-                "managedPipelineMode": "Integrated",
-                "virtualApplications": [
-                    {
-                        "virtualPath": "/",
-                        "physicalPath": "site\\wwwroot",
-                        "preloadEnabled": false
-                    }
-                ],
-                "loadBalancing": "LeastRequests",
-                "experiments": {
-                    "rampUpRules": []
-                },
-                "autoHealEnabled": false,
-                "cors": {
-                    "allowedOrigins": [
-                        "https://afd.hosting.portal.azure.net",
-                        "https://afd.hosting-ms.portal.azure.net",
-                        "https://hosting.portal.azure.net",
-                        "https://ms.hosting.portal.azure.net",
-                        "https://ema-ms.hosting.portal.azure.net",
-                        "https://ema.hosting.portal.azure.net"
-                    ],
-                    "supportCredentials": false
-                },
-                "localMySqlEnabled": false,
-                "managedServiceIdentityId": 15867,
-                "ipSecurityRestrictions": [
-                    {
-                        "ipAddress": "Any",
-                        "action": "Allow",
-                        "priority": 1,
-                        "name": "Allow all",
-                        "description": "Allow all access"
-                    }
-                ],
-                "scmIpSecurityRestrictions": [
-                    {
-                        "ipAddress": "Any",
-                        "action": "Allow",
-                        "priority": 1,
-                        "name": "Allow all",
-                        "description": "Allow all access"
-                    }
-                ],
-                "scmIpSecurityRestrictionsUseMain": false,
-                "http20Enabled": false,
-                "minTlsVersion": "1.2",
-                "ftpsState": "AllAllowed",
-                "reservedInstanceCount": 0
-            }
-        },
-        {
             "type": "Microsoft.Web/sites/functions",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('sites_Mcd79GraphSearchConnector_name'), '/CreateConnection')]",
+            "name": "[concat(variables('sites_GraphSearchConnector_name'), '/CreateConnection')]",
             "location": "UK South",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_Mcd79GraphSearchConnector_name'))]"
+                "[resourceId('Microsoft.Web/sites', variables('sites_GraphSearchConnector_name'))]"
             ],
             "properties": {
                 "script_root_path_href": "https://mcd79graphsearchconnector.azurewebsites.net/admin/vfs/site/wwwroot/CreateConnection/",
@@ -1037,36 +663,23 @@
         {
             "type": "Microsoft.Web/sites/hostNameBindings",
             "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('sites_Mcd79GraphSearchConnector_name'), '/', parameters('sites_Mcd79GraphSearchConnector_name'), '.azurewebsites.net')]",
+            "name": "[concat(variables('sites_GraphSearchConnector_name'), '/', variables('sites_GraphSearchConnector_name'), '.azurewebsites.net')]",
             "location": "UK South",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_Mcd79GraphSearchConnector_name'))]"
+                "[resourceId('Microsoft.Web/sites', variables('sites_GraphSearchConnector_name'))]"
             ],
             "properties": {
-                "siteName": "Mcd79GraphSearchConnector",
-                "hostNameType": "Verified"
-            }
-        },
-        {
-            "type": "Microsoft.Web/sites/hostNameBindings",
-            "apiVersion": "2018-11-01",
-            "name": "[concat(parameters('sites_Mcd79TwitterSearchConnector_name'), '/', parameters('sites_Mcd79TwitterSearchConnector_name'), '.azurewebsites.net')]",
-            "location": "UK South",
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_Mcd79TwitterSearchConnector_name'))]"
-            ],
-            "properties": {
-                "siteName": "Mcd79TwitterSearchConnector",
+                "siteName": "[variables('sites_GraphSearchConnector_name')]",
                 "hostNameType": "Verified"
             }
         },
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
             "apiVersion": "2019-06-01",
-            "name": "[concat(parameters('storageAccounts_mcd79twittersearchconnec_name'), '/default/azure-webjobs-hosts')]",
+            "name": "[concat(variables('storageAccounts_name'), '/default/azure-webjobs-hosts')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_mcd79twittersearchconnec_name'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_mcd79twittersearchconnec_name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('storageAccounts_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccounts_name'))]"
             ],
             "properties": {
                 "defaultEncryptionScope": "$account-encryption-key",
@@ -1077,38 +690,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
             "apiVersion": "2019-06-01",
-            "name": "[concat(parameters('storageAccounts_storageaccountmcd7999fa_name'), '/default/azure-webjobs-hosts')]",
+            "name": "[concat(variables('storageAccounts_name'), '/default/azure-webjobs-secrets')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_storageaccountmcd7999fa_name'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_storageaccountmcd7999fa_name'))]"
-            ],
-            "properties": {
-                "defaultEncryptionScope": "$account-encryption-key",
-                "denyEncryptionScopeOverride": false,
-                "publicAccess": "None"
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-            "apiVersion": "2019-06-01",
-            "name": "[concat(parameters('storageAccounts_mcd79twittersearchconnec_name'), '/default/azure-webjobs-secrets')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_mcd79twittersearchconnec_name'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_mcd79twittersearchconnec_name'))]"
-            ],
-            "properties": {
-                "defaultEncryptionScope": "$account-encryption-key",
-                "denyEncryptionScopeOverride": false,
-                "publicAccess": "None"
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-            "apiVersion": "2019-06-01",
-            "name": "[concat(parameters('storageAccounts_storageaccountmcd7999fa_name'), '/default/azure-webjobs-secrets')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_storageaccountmcd7999fa_name'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_storageaccountmcd7999fa_name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('storageAccounts_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccounts_name'))]"
             ],
             "properties": {
                 "defaultEncryptionScope": "$account-encryption-key",
@@ -1119,24 +704,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
             "apiVersion": "2019-06-01",
-            "name": "[concat(parameters('storageAccounts_storageaccountmcd7999fa_name'), '/default/mcd79graphsearchconnector9d95')]",
+            "name": "[concat(variables('storageAccounts_name'), '/default/graphsearchconnector')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('storageAccounts_storageaccountmcd7999fa_name'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_storageaccountmcd7999fa_name'))]"
-            ],
-            "properties": {
-                "accessTier": "TransactionOptimized",
-                "shareQuota": 5120,
-                "enabledProtocols": "SMB"
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
-            "apiVersion": "2019-06-01",
-            "name": "[concat(parameters('storageAccounts_mcd79twittersearchconnec_name'), '/default/', parameters('storageAccounts_mcd79twittersearchconnec_name'), 'tor3a9f13')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('storageAccounts_mcd79twittersearchconnec_name'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_mcd79twittersearchconnec_name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', variables('storageAccounts_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccounts_name'))]"
             ],
             "properties": {
                 "accessTier": "TransactionOptimized",

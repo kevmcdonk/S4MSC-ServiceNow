@@ -58,7 +58,7 @@
                     "method": "get",
                     "path": "/onnewtweet",
                     "queries": {
-                        "searchQuery": "#CollabTalk"
+                        "searchQuery": "#MicrosoftSearch"
                     }
                 },
                 "recurrence": {

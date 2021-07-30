@@ -2,7 +2,7 @@
     "definition": {
         "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
         "actions": {
-            "Check_Mcd79TwitterSearchConnector_exists": {
+            "Check_S4MSC-TwitterSearchConnector_exists": {
                 "inputs": {
                     "authentication": {
                         "audience": "https://graph.microsoft.com",
@@ -12,7 +12,7 @@
                         "type": "ActiveDirectoryOAuth"
                     },
                     "method": "GET",
-                    "uri": "https://graph.microsoft.com/beta/external/connections/Mcd79TwitterSearchConnector"
+                    "uri": "https://graph.microsoft.com/beta/external/connections/S4MSC-TwitterSearchConnector"
                 },
                 "runAfter": {},
                 "type": "Http"
@@ -27,17 +27,17 @@
                         "type": "ActiveDirectoryOAuth"
                     },
                     "method": "GET",
-                    "uri": "https://graph.microsoft.com/beta/external/connections/Mcd79TwitterSearchConnector/schema"
+                    "uri": "https://graph.microsoft.com/beta/external/connections/S4MSC-TwitterTwitterSearchConnector/schema"
                 },
                 "runAfter": {
-                    "Create_Mcd79TwitterSearchConnector_if_doesn't_exist": [
+                    "Create_S4MSC-TwitterSearchConnector_if_doesn't_exist": [
                         "Succeeded",
                         "Skipped"
                     ]
                 },
                 "type": "Http"
             },
-            "Create_Mcd79TwitterSearchConnector_if_doesn't_exist": {
+            "Create_S4MSC-TwitterSearchConnector_if_doesn't_exist": {
                 "inputs": {
                     "authentication": {
                         "audience": "https://graph.microsoft.com",
@@ -48,14 +48,14 @@
                     },
                     "body": {
                         "description": "Connector for showing key tweets",
-                        "id": "Mcd79TwitterSearchConnector",
+                        "id": "S4MSC-TwitterSearchConnector",
                         "name": "Twitter Connector"
                     },
                     "method": "POST",
                     "uri": "https://graph.microsoft.com/beta/external/connections"
                 },
                 "runAfter": {
-                    "Check_Mcd79TwitterSearchConnector_exists": [
+                    "Check_S4MSC-TwitterSearchConnector_exists": [
                         "Failed"
                     ]
                 },
@@ -148,7 +148,7 @@
                         ]
                     },
                     "method": "POST",
-                    "uri": "https://graph.microsoft.com/beta/external/connections/Mcd79TwitterSearchConnector/schema"
+                    "uri": "https://graph.microsoft.com/beta/external/connections/S4MSC-TwitterSearchConnector/schema"
                 },
                 "runAfter": {
                     "Check_schema_exists": [
