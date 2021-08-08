@@ -9,132 +9,103 @@
         "region": {
             "defaultValue": "uksouth",
             "type": "String"
+        },
+        "tenantId": {
+            "defaultValue": "[parameters('region')]",
+            "type": "String"
+        },
+        "clientId": {
+            "defaultValue": "[parameters('region')]",
+            "type": "String"
+        },
+        "secret": {
+            "defaultValue": "[parameters('region')]",
+            "type": "String"
         }
     },
     "variables": {
-        "sites_SearchConnector_name": "[concat(parameters('connections_twitter_name'),'SearchConnector')]",
-        "sites_GraphSearchConnector_name": "[concat(parameters('connections_twitter_name'),'GraphSearchConnector')]",
         "workflows_SearchConnectorSetup_name": "[concat('la-',parameters('connections_twitter_name'),'-setup')]",
         "workflows_SearchConnectorSearch_name": "[concat('la-',parameters('connections_twitter_name'),'-search')]",
         "workflows_SearchConnectorTrigger_name": "[concat('la-',parameters('connections_twitter_name'),'-trigger')]",
-        "storageAccounts_name": "[replace(toLower(concat('storage',parameters('connections_twitter_name'))),'-','')]",
-        "appServicePlan_name": "[concat('appServicePlan-',parameters('connections_twitter_name'))]",
-        "searchConnector_name": "[concat('appInsights-',parameters('connections_twitter_name'))]"
-    
+        "graphConnectorUrl":"[concat('https://graph.microsoft.com/beta/external/connections/',parameters('connections_twitter_name'),'SearchConnector')]"
     },
     "resources": [
-        {
-            "type": "microsoft.insights/components",
-            "apiVersion": "2018-05-01-preview",
-            "name": "[parameters('connections_twitter_name')]",
-            "location": "uksouth",
-            "kind": "web",
-            "properties": {
-                "Application_Type": "web",
-                "Request_Source": "rest",
-                "RetentionInDays": 90,
-                "publicNetworkAccessForIngestion": "Enabled",
-                "publicNetworkAccessForQuery": "Enabled"
-            }
-        },
         {
             "type": "Microsoft.Logic/workflows",
             "apiVersion": "2017-07-01",
             "name": "[variables('workflows_SearchConnectorSetup_name')]",
-            "location": "uksouth",
-            "identity": {
-                "principalId": "a4a4968c-aa2b-45aa-addf-2bab8358fc91",
-                "tenantId": "",
-                "type": "SystemAssigned"
-            },
+            "location": "[parameters('region')]",
             "properties": {
                 "state": "Enabled",
                 "definition": {
                     "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
-                    "contentVersion": "1.0.0.0",
-                    "parameters": {},
-                    "triggers": {
-                        "manual": {
-                            "type": "Request",
-                            "kind": "Http",
-                            "inputs": {
-                                "schema": {}
-                            }
-                        }
-                    },
                     "actions": {
-                        "Check_SearchConnector_exists": {
-                            "runAfter": {},
-                            "type": "Http",
+                        "Check_S4MSC-TwitterSearchConnector_exists": {
                             "inputs": {
                                 "authentication": {
                                     "audience": "https://graph.microsoft.com",
-                                    "clientId": "",
-                                    "secret": "",
-                                    "tenant": "",
+                                    "clientId": "[parameters('clientId')]",
+                                    "secret": "[parameters('secret')]",
+                                    "tenant": "[parameters('tenantId')]",
                                     "type": "ActiveDirectoryOAuth"
                                 },
                                 "method": "GET",
-                                "uri": "[concat('https://graph.microsoft.com/beta/external/connections/',variables('searchConnector_name'))]"
-                            }
+                                "uri": "[variables('graphConnectorUrl')]"
+                            },
+                            "runAfter": {},
+                            "type": "Http"
                         },
                         "Check_schema_exists": {
+                            "inputs": {
+                                "authentication": {
+                                    "audience": "https://graph.microsoft.com",
+                                    "clientId": "[parameters('clientId')]",
+                                    "secret": "[parameters('secret')]",
+                                    "tenant": "[parameters('tenantId')]",
+                                    "type": "ActiveDirectoryOAuth"
+                                },
+                                "method": "GET",
+                                "uri": "[concat(variables('graphConnectorUrl'),'/schema')]"
+                            },
                             "runAfter": {
-                                "Create_SearchConnector_if_doesn't_exist": [
+                                "Create_S4MSC-TwitterSearchConnector_if_doesn't_exist": [
                                     "Succeeded",
                                     "Skipped"
                                 ]
                             },
-                            "type": "Http",
-                            "inputs": {
-                                "authentication": {
-                                    "audience": "https://graph.microsoft.com",
-                                    "clientId": "",
-                                    "secret": "",
-                                    "tenant": "",
-                                    "type": "ActiveDirectoryOAuth"
-                                },
-                                "method": "GET",
-                                "uri": "[concat('https://graph.microsoft.com/beta/external/connections/',variables('searchConnector_name'),'/schema')]"
-                            }
+                            "type": "Http"
                         },
-                        "Create_SearchConnector_if_doesn't_exist": {
-                            "runAfter": {
-                                "Check_SearchConnector_exists": [
-                                    "Failed"
-                                ]
-                            },
-                            "type": "Http",
+                        "Create_S4MSC-TwitterSearchConnector_if_doesn't_exist": {
                             "inputs": {
                                 "authentication": {
                                     "audience": "https://graph.microsoft.com",
-                                    "clientId": "",
-                                    "secret": "",
-                                    "tenant": "",
+                                    "clientId": "[parameters('clientId')]",
+                                    "secret": "[parameters('secret')]",
+                                    "tenant": "[parameters('tenantId')]",
                                     "type": "ActiveDirectoryOAuth"
                                 },
                                 "body": {
                                     "description": "Connector for showing key tweets",
-                                    "id": "[variables('searchConnector_name')]",
+                                    "id": "[concat(parameters('connections_twitter_name'),'SearchConnector')]",
                                     "name": "Twitter Connector"
                                 },
                                 "method": "POST",
                                 "uri": "https://graph.microsoft.com/beta/external/connections"
-                            }
-                        },
-                        "Create_schema_if_it_doesn't_exists": {
+                            },
                             "runAfter": {
-                                "Check_schema_exists": [
+                                "Check_TwitterSearchConnector_exists": [
                                     "Failed"
                                 ]
                             },
-                            "type": "Http",
+                            "type": "Http"
+                        },
+                        "Create_schema_if_it_doesn't_exists": {
                             "inputs": {
                                 "authentication": {
                                     "audience": "https://graph.microsoft.com",
-                                    "clientId": "",
-                                    "secret": "",
-                                    "tenant": "",
+                                    "clientId": "[parameters('clientId')]",
+                                    "secret": "[parameters('secret')]",
+                                    "tenant": "[parameters('tenantId')]",
                                     "type": "ActiveDirectoryOAuth"
                                 },
                                 "body": {
@@ -215,156 +186,66 @@
                                     ]
                                 },
                                 "method": "POST",
-                                "uri": "[concat('https://graph.microsoft.com/beta/external/connections/',variables('searchConnector_name'),'/schema')]"
-                            }
+                                "uri": "[concat(variables('graphConnectorUrl'),'/schema')]"
+                            },
+                            "runAfter": {
+                                "Check_schema_exists": [
+                                    "Failed"
+                                ]
+                            },
+                            "type": "Http"
                         }
                     },
-                    "outputs": {}
+                    "contentVersion": "1.0.0.0",
+                    "outputs": {},
+                    "parameters": {},
+                    "triggers": {
+                        "manual": {
+                            "inputs": {
+                                "schema": {}
+                            },
+                            "kind": "Http",
+                            "type": "Request"
+                        }
+                    }
                 },
                 "parameters": {}
             }
         },
         {
-            "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2019-06-01",
-            "name": "[variables('storageAccounts_name')]",
-            "location": "uksouth",
-            "sku": {
-                "name": "Standard_LRS",
-                "tier": "Standard"
-            },
-            "kind": "Storage",
-            "properties": {
-                "networkAcls": {
-                    "bypass": "AzureServices",
-                    "virtualNetworkRules": [],
-                    "ipRules": [],
-                    "defaultAction": "Allow"
-                },
-                "supportsHttpsTrafficOnly": true,
-                "encryption": {
-                    "services": {
-                        "file": {
-                            "keyType": "Account",
-                            "enabled": true
-                        },
-                        "blob": {
-                            "keyType": "Account",
-                            "enabled": true
-                        }
-                    },
-                    "keySource": "Microsoft.Storage"
-                }
-            }
-        },
-        {
             "type": "Microsoft.Web/connections",
             "apiVersion": "2016-06-01",
-            "name": "[parameters('connections_twitter_name')]",
-            "location": "uksouth",
+            "name": "twitter",
+            "location": "[parameters('region')]",
             "kind": "V1",
             "properties": {
-                "displayName": "kevmcdonk",
+                "displayName": "Twitter",
+                "statuses": [
+                    {
+                        "status": "Connected"
+                    }
+                ],
                 "customParameterValues": {},
                 "api": {
-                    "id": "[concat('/subscriptions/subscriptionid()/providers/Microsoft.Web/locations/',parameters('region'),'/managedApis/', parameters('connections_twitter_name'))]"
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Web/serverfarms",
-            "apiVersion": "2018-02-01",
-            "name": "[variables('appServicePlan_name')]",
-            "location": "UK South",
-            "sku": {
-                "name": "F1",
-                "tier": "Free",
-                "size": "F1",
-                "family": "F",
-                "capacity": 0
-            },
-            "kind": "app",
-            "properties": {
-                "perSiteScaling": false,
-                "maximumElasticWorkerCount": 1,
-                "isSpot": false,
-                "reserved": false,
-                "isXenon": false,
-                "hyperV": false,
-                "targetWorkerCount": 0,
-                "targetWorkerSizeId": 0
-            }
-        },
-        {
-            "type": "Microsoft.Logic/workflows",
-            "apiVersion": "2017-07-01",
-            "name": "[variables('workflows_SearchConnectorTrigger_name')]",
-            "location": "uksouth",
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/connections', parameters('connections_twitter_name'))]"
-            ],
-            "properties": {
-                "state": "Enabled",
-                "definition": {
-                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
-                    "contentVersion": "1.0.0.0",
-                    "parameters": {
-                        "$connections": {
-                            "defaultValue": {},
-                            "type": "Object"
-                        }
-                    },
-                    "triggers": {
-                        "When_a_Collabtalk_tweet_is_posted": {
-                            "recurrence": {
-                                "frequency": "Day",
-                                "interval": 1
-                            },
-                            "splitOn": "@triggerBody()?['value']",
-                            "type": "ApiConnection",
-                            "inputs": {
-                                "host": {
-                                    "connection": {
-                                        "name": "@parameters('$connections')['twitter']['connectionId']"
-                                    }
-                                },
-                                "method": "get",
-                                "path": "/onnewtweet",
-                                "queries": {
-                                    "searchQuery": "#CollabTalk"
-                                }
-                            }
-                        }
-                    },
-                    "actions": {},
-                    "outputs": {}
+                    "name": "twitter",
+                    "displayName": "Twitter",
+                    "description": "Twitter is an online social networking service that enables users to send and receive short messages called 'tweets'. Connect to Twitter to manage your tweets. You can perform various actions such as send tweet, search, view followers, etc.",
+                    "iconUri": "[concat('https://connectoricons-prod.azureedge.net/releases/v1.0.1473/1.0.1473.2431/', parameters('connections_twitter_name'), '/icon.png')]",
+                    "brandColor": "#5fa9dd",
+                    "id": "[concat('/subscriptions/',subscription(),'/providers/Microsoft.Web/locations/',parameters('region'),'/managedApis/', parameters('connections_twitter_name'))]",
+                    "type": "Microsoft.Web/locations/managedApis"
                 },
-                "parameters": {
-                    "$connections": {
-                        "value": {
-                            "twitter": {
-                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('connections_twitter_name'))]",
-                                "connectionName": "twitter",
-                                "id": "/subscriptions/6951ada6-6409-48d7-8199-f09893b21c48/providers/Microsoft.Web/locations/uksouth/managedApis/twitter"
-                            }
-                        }
-                    }
-                }
+                "testLinks": []
             }
         },
         {
             "type": "Microsoft.Logic/workflows",
             "apiVersion": "2017-07-01",
             "name": "[variables('workflows_SearchConnectorSearch_name')]",
-            "location": "uksouth",
+            "location": "[parameters('region')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/connections', parameters('connections_twitter_name'))]"
             ],
-            "identity": {
-                "principalId": "3b293e62-1d63-400c-a09e-175188e8fe78",
-                "tenantId": "",
-                "type": "SystemAssigned"
-            },
             "properties": {
                 "state": "Enabled",
                 "definition": {
@@ -395,9 +276,9 @@
                                     "inputs": {
                                         "authentication": {
                                             "audience": "https://graph.microsoft.com",
-                                            "clientId": "",
-                                            "secret": "",
-                                            "tenant": "",
+                                            "clientId": "[parameters('clientId')]",
+                                            "secret": "[parameters('secret')]",
+                                            "tenant": "[parameters('tenantId')]",
                                             "type": "ActiveDirectoryOAuth"
                                         },
                                         "body": {
@@ -422,7 +303,7 @@
                                             "type": "microsoft.graph.externalItem"
                                         },
                                         "method": "PUT",
-                                        "uri": "https://graph.microsoft.com/beta/external/connections/Mcd79TwitterSearchConnector/items/@{items('For_each')?['TweetId']}"
+                                        "uri": "[concat(variables('graphConnectorUrl'),'/items/@{items(''For_each'')?[''TweetId'']}')]"
                                     }
                                 }
                             },
@@ -459,7 +340,7 @@
                             "twitter": {
                                 "connectionId": "[resourceId('Microsoft.Web/connections', parameters('connections_twitter_name'))]",
                                 "connectionName": "twitter",
-                                "id": "/subscriptions/6951ada6-6409-48d7-8199-f09893b21c48/providers/Microsoft.Web/locations/uksouth/managedApis/twitter"
+                                "id": "/subscriptions/[subscription()]/providers/Microsoft.Web/locations/[parameters('region')]/managedApis/twitter"
                             }
                         }
                     }
@@ -467,252 +348,97 @@
             }
         },
         {
-            "type": "Microsoft.Storage/storageAccounts/blobServices",
-            "apiVersion": "2019-06-01",
-            "name": "[concat(variables('storageAccounts_name'), '/default')]",
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[variables('workflows_SearchConnectorTrigger_name')]",
+            "location": "[parameters('region')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccounts_name'))]"
+                "[resourceId('Microsoft.Web/connections', parameters('connections_twitter_name'))]"
             ],
-            "sku": {
-                "name": "Standard_LRS",
-                "tier": "Standard"
-            },
             "properties": {
-                "cors": {
-                    "corsRules": []
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "When_a_Collabtalk_tweet_is_posted": {
+                            "recurrence": {
+                                "frequency": "Day",
+                                "interval": 1
+                            },
+                            "splitOn": "@triggerBody()?['value']",
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['twitter']['connectionId']"
+                                    }
+                                },
+                                "method": "get",
+                                "path": "/onnewtweet",
+                                "queries": {
+                                    "searchQuery": "#MicrosoftSearch"
+                                }
+                            }
+                        }
+                    },
+                    "actions": {
+                        "HTTP": {
+                            "runAfter": {},
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "audience": "https://graph.microsoft.com",
+                                    "clientId": "[parameters('clientId')]",
+                                    "secret": "[parameters('secret')]",
+                                    "tenant": "[parameters('tenantId')]",
+                                    "type": "ActiveDirectoryOAuth"
+                                },
+                                "body": {
+                                    "acl": [
+                                        {
+                                            "accessType": "grant",
+                                            "identitySource": "azureActiveDirectory",
+                                            "type": "everyone",
+                                            "value": "43c5e796-f484-4157-8c93-73ac8b1cf7bf"
+                                        }
+                                    ],
+                                    "content": {
+                                        "type": "text",
+                                        "value": "@{triggerBody()?['TweetText']}"
+                                    },
+                                    "properties": {
+                                        "TweetByFullName": "@{triggerBody()?['UserDetails']?['FullName']}",
+                                        "TweetId": "@{triggerBody()?['TweetId']}",
+                                        "TweetText": "@{triggerBody()?['TweetText']}",
+                                        "TweetedByUserName": "@{triggerBody()?['UserDetails']?['UserName']}"
+                                    },
+                                    "type": "microsoft.graph.externalItem"
+                                },
+                                "method": "PUT",
+                                "uri": "[concat(variables('graphConnectorUrl'),'/items/@{triggerBody()?[''TweetId'']}')]"
+                            }
+                        }
+                    },
+                    "outputs": {}
                 },
-                "deleteRetentionPolicy": {
-                    "enabled": false
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/fileServices",
-            "apiVersion": "2019-06-01",
-            "name": "[concat(variables('storageAccounts_name'), '/default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccounts_name'))]"
-            ],
-            "sku": {
-                "name": "Standard_LRS",
-                "tier": "Standard"
-            },
-            "properties": {
-                "cors": {
-                    "corsRules": []
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/queueServices",
-            "apiVersion": "2019-06-01",
-            "name": "[concat(variables('storageAccounts_name'), '/default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccounts_name'))]"
-            ],
-            "properties": {
-                "cors": {
-                    "corsRules": []
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/tableServices",
-            "apiVersion": "2019-06-01",
-            "name": "[concat(variables('storageAccounts_name'), '/default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccounts_name'))]"
-            ],
-            "properties": {
-                "cors": {
-                    "corsRules": []
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Web/sites",
-            "apiVersion": "2018-11-01",
-            "name": "[variables('sites_GraphSearchConnector_name')]",
-            "location": "UK South",
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlan_name'))]"
-            ],
-            "kind": "functionapp",
-            "identity": {
-                // CHECK THESE
-                "principalId": "c65f03f9-ed85-4f34-b411-6d8d252ad73d",
-                "tenantId": "",
-                "type": "SystemAssigned"
-            },
-            "properties": {
-                "enabled": true,
-
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlan_name'))]",
-                "reserved": false,
-                "isXenon": false,
-                "hyperV": false,
-                "siteConfig": {},
-                "scmSiteAlsoStopped": false,
-                "clientAffinityEnabled": true,
-                "clientCertEnabled": false,
-                "hostNamesDisabled": false,
-                "containerSize": 1536,
-                "dailyMemoryTimeQuota": 0,
-                "httpsOnly": false,
-                "redundancyMode": "None"
-            }
-        },
-        {
-            "type": "Microsoft.Web/sites/config",
-            "apiVersion": "2018-11-01",
-            "name": "[concat(variables('sites_GraphSearchConnector_name'), '/web')]",
-            "location": "UK South",
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', variables('sites_GraphSearchConnector_name'))]"
-            ],
-            "properties": {
-                "numberOfWorkers": -1,
-                "defaultDocuments": [
-                    "Default.htm",
-                    "Default.html",
-                    "Default.asp",
-                    "index.htm",
-                    "index.html",
-                    "iisstart.htm",
-                    "default.aspx",
-                    "index.php"
-                ],
-                "netFrameworkVersion": "v4.0",
-                "phpVersion": "5.6",
-                "requestTracingEnabled": false,
-                "remoteDebuggingEnabled": false,
-                "httpLoggingEnabled": false,
-                "logsDirectorySizeLimit": 35,
-                "detailedErrorLoggingEnabled": false,
-                "publishingUsername": "$GraphSearchConnector",
-                "azureStorageAccounts": {},
-                "scmType": "None",
-                "use32BitWorkerProcess": true,
-                "webSocketsEnabled": false,
-                "alwaysOn": false,
-                "managedPipelineMode": "Integrated",
-                "virtualApplications": [
-                    {
-                        "virtualPath": "/",
-                        "physicalPath": "site\\wwwroot",
-                        "preloadEnabled": false
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "twitter": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('connections_twitter_name'))]",
+                                "connectionName": "twitter",
+                                "id": "/subscriptions/[subscription()]/providers/Microsoft.Web/locations/[parameters('region')]/managedApis/twitter"
+                            }
+                        }
                     }
-                ],
-                "loadBalancing": "LeastRequests",
-                "experiments": {
-                    "rampUpRules": []
-                },
-                "autoHealEnabled": false,
-                "cors": {
-                    "allowedOrigins": [
-                        "https://functions.azure.com",
-                        "https://functions-staging.azure.com",
-                        "https://functions-next.azure.com"
-                    ],
-                    "supportCredentials": false
-                },
-                "localMySqlEnabled": false,
-                "managedServiceIdentityId": 15870,
-                "ipSecurityRestrictions": [
-                    {
-                        "ipAddress": "Any",
-                        "action": "Allow",
-                        "priority": 1,
-                        "name": "Allow all",
-                        "description": "Allow all access"
-                    }
-                ],
-                "scmIpSecurityRestrictions": [
-                    {
-                        "ipAddress": "Any",
-                        "action": "Allow",
-                        "priority": 1,
-                        "name": "Allow all",
-                        "description": "Allow all access"
-                    }
-                ],
-                "scmIpSecurityRestrictionsUseMain": false,
-                "http20Enabled": false,
-                "minTlsVersion": "1.2",
-                "ftpsState": "AllAllowed",
-                "reservedInstanceCount": 0
-            }
-        },
-        {
-            "type": "Microsoft.Web/sites/functions",
-            "apiVersion": "2018-11-01",
-            "name": "[concat(variables('sites_GraphSearchConnector_name'), '/CreateConnection')]",
-            "location": "UK South",
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', variables('sites_GraphSearchConnector_name'))]"
-            ],
-            "properties": {
-                "script_root_path_href": "https://mcd79graphsearchconnector.azurewebsites.net/admin/vfs/site/wwwroot/CreateConnection/",
-                "script_href": "https://mcd79graphsearchconnector.azurewebsites.net/admin/vfs/site/wwwroot/CreateConnection/index.js",
-                "config_href": "https://mcd79graphsearchconnector.azurewebsites.net/admin/vfs/site/wwwroot/CreateConnection/function.json",
-                "href": "https://mcd79graphsearchconnector.azurewebsites.net/admin/functions/CreateConnection",
-                "config": {},
-                "test_data": "{\r\n    \"name\": \"Azure\"\r\n}"
-            }
-        },
-        {
-            "type": "Microsoft.Web/sites/hostNameBindings",
-            "apiVersion": "2018-11-01",
-            "name": "[concat(variables('sites_GraphSearchConnector_name'), '/', variables('sites_GraphSearchConnector_name'), '.azurewebsites.net')]",
-            "location": "UK South",
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', variables('sites_GraphSearchConnector_name'))]"
-            ],
-            "properties": {
-                "siteName": "[variables('sites_GraphSearchConnector_name')]",
-                "hostNameType": "Verified"
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-            "apiVersion": "2019-06-01",
-            "name": "[concat(variables('storageAccounts_name'), '/default/azure-webjobs-hosts')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('storageAccounts_name'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccounts_name'))]"
-            ],
-            "properties": {
-                "defaultEncryptionScope": "$account-encryption-key",
-                "denyEncryptionScopeOverride": false,
-                "publicAccess": "None"
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-            "apiVersion": "2019-06-01",
-            "name": "[concat(variables('storageAccounts_name'), '/default/azure-webjobs-secrets')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('storageAccounts_name'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccounts_name'))]"
-            ],
-            "properties": {
-                "defaultEncryptionScope": "$account-encryption-key",
-                "denyEncryptionScopeOverride": false,
-                "publicAccess": "None"
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
-            "apiVersion": "2019-06-01",
-            "name": "[concat(variables('storageAccounts_name'), '/default/graphsearchconnector')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', variables('storageAccounts_name'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccounts_name'))]"
-            ],
-            "properties": {
-                "accessTier": "TransactionOptimized",
-                "shareQuota": 5120,
-                "enabledProtocols": "SMB"
+                }
             }
         }
     ]
