@@ -31,20 +31,16 @@ jobs:
           # Provide the scope of the deployment. Valid values are: 'resourcegroup', 'managementgroup', 'subscription'
           scope: resourcegroup
           # Override the Subscription Id set by Azure Login.
-          subscriptionId: # optional
-          # Specify the Id for the Management Group, only required for Management Group Deployments.
-          managementGroupId: # optional
+          subscriptionId: ${{ secrets.SubscriptionID }}
           # Provide the target region, only required for management Group or Subscription deployments.
-          region: # optional
+          region: ${{ secrets.Region }}
           # Provide the name of a resource group, only required for resource Group deployments.
-          resourceGroupName: # optional
+          resourceGroupName: ${{ secrets.ResourceGroupName }}
           # Specify the path or URL to the Azure Resource Manager template.
-          template: 
+          template: template.json
           # Incremental (only add resources to resource group) or Complete (remove extra resources from resource group) or Validate (only validates the template).
-          deploymentMode: # optional
-          # Specifies the name of the resource group deployment to create.
-          deploymentName: # optional
+          deploymentMode: Incremental
           # Supply deployment parameter values.
           parameters: # optional
           # Specify whether to fail the action if some data is written to stderr stream of az cli. Valid values are: true, false
-          failOnStdErr: # optional, default is true
+          failOnStdErr: true
