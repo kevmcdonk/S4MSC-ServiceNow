@@ -40,7 +40,7 @@
                 "definition": {
                     "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
                     "actions": {
-                        "Check_S4MSC-TwitterSearchConnector_exists": {
+                        "Check_TwitterSearchConnector_exists": {
                             "inputs": {
                                 "authentication": {
                                     "audience": "https://graph.microsoft.com",
@@ -230,9 +230,9 @@
                     "name": "twitter",
                     "displayName": "Twitter",
                     "description": "Twitter is an online social networking service that enables users to send and receive short messages called 'tweets'. Connect to Twitter to manage your tweets. You can perform various actions such as send tweet, search, view followers, etc.",
-                    "iconUri": "[concat('https://connectoricons-prod.azureedge.net/releases/v1.0.1473/1.0.1473.2431/', parameters('connections_twitter_name'), '/icon.png')]",
+                    "iconUri": "[concat('https://connectoricons-prod.azureedge.net/releases/v1.0.1473/1.0.1473.2431/twitter/icon.png')]",
                     "brandColor": "#5fa9dd",
-                    "id": "[concat('/subscriptions/',subscription(),'/providers/Microsoft.Web/locations/',parameters('region'),'/managedApis/', parameters('connections_twitter_name'))]",
+                    "id": "[concat('/subscriptions/',subscription().subscriptionId,'/providers/Microsoft.Web/locations/',parameters('region'),'/managedApis/twitter')]",
                     "type": "Microsoft.Web/locations/managedApis"
                 },
                 "testLinks": []
@@ -244,7 +244,7 @@
             "name": "[variables('workflows_SearchConnectorSearch_name')]",
             "location": "[parameters('region')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/connections', parameters('connections_twitter_name'))]"
+                "[resourceId('Microsoft.Web/connections', 'twitter')]"
             ],
             "properties": {
                 "state": "Enabled",
@@ -338,9 +338,9 @@
                     "$connections": {
                         "value": {
                             "twitter": {
-                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('connections_twitter_name'))]",
+                                "connectionId": "[resourceId('Microsoft.Web/connections', 'twitter')]",
                                 "connectionName": "twitter",
-                                "id": "/subscriptions/[subscription()]/providers/Microsoft.Web/locations/[parameters('region')]/managedApis/twitter"
+                                "id": "/subscriptions/[subscription().subscriptionId]/providers/Microsoft.Web/locations/[parameters('region')]/managedApis/twitter"
                             }
                         }
                     }
@@ -353,7 +353,7 @@
             "name": "[variables('workflows_SearchConnectorTrigger_name')]",
             "location": "[parameters('region')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/connections', parameters('connections_twitter_name'))]"
+                "[resourceId('Microsoft.Web/connections', 'twitter')]"
             ],
             "properties": {
                 "state": "Enabled",
@@ -432,9 +432,9 @@
                     "$connections": {
                         "value": {
                             "twitter": {
-                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('connections_twitter_name'))]",
+                                "connectionId": "[resourceId('Microsoft.Web/connections','twitter')]",
                                 "connectionName": "twitter",
-                                "id": "/subscriptions/[subscription()]/providers/Microsoft.Web/locations/[parameters('region')]/managedApis/twitter"
+                                "id": "/subscriptions/[subscription().subscriptionId]/providers/Microsoft.Web/locations/[parameters('region')]/managedApis/twitter"
                             }
                         }
                     }
