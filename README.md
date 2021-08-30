@@ -2,30 +2,32 @@
 Sample for creating Microsoft Search custom indexes
 
 ## Setup 
-The code in this repo includes the individual Logic Apps as well as the ARM Template for setting up the full resource group. At this point, there is a lot of manual work needed to get this working but it will be updated shortly.
+The code in this repo includes the individual Logic Apps as well as the ARM Template for setting up the full resource group. The steps below detail how to set up using the Azure Cloud Shell. Manual details will be added later.
 
-## Register an app in Azure portal
+- Connect to the Azure Portal
+- Open Azure Cloud Shell and select Bash
+- Install NVM using commands below (due to [issue with version of Node used](https://github.com/pnp/cli-microsoft365/issues/2017))
 
-In this step you'll register an application in the Azure AD admin center. This is necessary to authenticate the application to make calls to the Microsoft Graph indexing API.
+`curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh
+`export NVM_DIR="$HOME/.nvm"
+`[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+`[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
+- Install the latest LTS Node version and set it as active
+`nvm install --lts
+`nvm use --lts
 
-1. Go to the [Azure Active Directory admin center](https://aad.portal.azure.com/) and sign in with an administrator account.
-1. Select **Azure Active Directory** in the left-hand pane, then select **App registrations** under **Manage**.
-1. Select **New registration**.
-1. Complete the **Register an application** form with the following values, then select **Register**.
-
-    - **Name:** `Parts Inventory Connector`
-    - **Supported account types:** `Accounts in this organizational directory only (Microsoft only - Single tenant)`
-    - **Redirect URI:** Leave blank
-
-1. On the **Parts Inventory Connector** page, copy the value of **Application (client) ID**, you'll need it in the next section.
-1. Copy the value of **Directory (tenant) ID**, you'll need it in the next section.
-1. Select **API Permissions** under **Manage**.
-1. Select **Add a permission**, then select **Microsoft Graph**.
-1. Select **Application permissions**, then select the **ExternalItem.ReadWrite.All** permission. Select **Add permissions**.
-1. Select **Grant admin consent for {TENANT}**, then select **Yes** when prompted.
-1. Select **Certificates & secrets** under **Manage**, then select **New client secret**.
-1. Enter a description and choose an expiration time for the secret, then select **Add**.
-1. Copy the new secret, you'll need it in the next section.
-
-## Configuring the Logic Apps
-Each of the Logic Apps requires the Client ID, Tenant ID and Client Secret to be used in the HTTP actions.
+- Login with CLI for Microsoft 365 using your [preferred option](https://pnp.github.io/cli-microsoft365/user-guide/connecting-office-365/#log-in-using-the-default-device-code-flow)
+- Add an app registration using [app add](https://pnp.github.io/cli-microsoft365/cmd/aad/app/app-add/) and store the results in variables
+`newApp=$(m365 aad app add -n S4MSCTwitter --multitenant --withSecret --apisApplication 'https://graph.microsoft.com/ExternalItem.ReadWrite.All' -o json)
+`newAppId=`echo $newApp | jq -r '.appId'`
+`newTenantId=`echo $newApp | jq -r '.tenantId'`
+`newSecret=`echo $newApp | jq -r '.secret'`
+- Create a new Resource Group
+`az group create --name S4MSCTwitter --location uksouth
+- Deploy the Logic Apps using ARM
+`az deployment group create --name LaDeployment --resource-group S4MSCTwitter --template-uri "https://raw.githubusercontent.com/kevmcdonk/S4MSC-Twitter/main/template.json" --parameters connections_dynamics_name=S4MSCDynamics region=uksouth tenantId=$newTenantId clientId=$newAppId secret=$newSecret
+- Go to Azure AD in the portal and consent the API permission
+- Go to the Resource Group and select the Dynamics connector
+- Click on Edit API Connection and then Authorize
+- Run the Setup Logic App
+- Confirm in the Search Settings that an index has been set up
