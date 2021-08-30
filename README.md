@@ -25,9 +25,9 @@ The code in this repo includes the individual Logic Apps as well as the ARM Temp
 - Create a new Resource Group
 `az group create --name S4MSCTwitter --location uksouth
 - Deploy the Logic Apps using ARM
-`az deployment group create --name LaDeployment --resource-group S4MSCTwitter --template-uri "https://raw.githubusercontent.com/kevmcdonk/S4MSC-Twitter/main/template.json" --parameters connections_dynamics_name=S4MSCDynamics region=uksouth tenantId=$newTenantId clientId=$newAppId secret=$newSecret
+`az deployment group create --name LaDeployment --resource-group S4MSCTwitter --template-uri "https://raw.githubusercontent.com/kevmcdonk/S4MSC-Twitter/main/template.json" --parameters connections_twitter_name=S4MSCTwitter region=uksouth tenantId=$newTenantId clientId=$newAppId secret=$newSecret
 - Go to Azure AD in the portal and consent the API permission
-- Go to the Resource Group and select the Dynamics connector
+- Go to the Resource Group and select the Twitter connector
 - Click on Edit API Connection and then Authorize
 - Run the Setup Logic App
 - Confirm in the Search Settings that an index has been set up
