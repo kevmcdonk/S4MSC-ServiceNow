@@ -2,7 +2,8 @@
 
 Sample for creating Microsoft Search custom indexes
 
-## Setup 
+## Setup
+
 The code in this repo includes the individual Logic Apps as well as the ARM Template for setting up the full resource group. The steps below detail how to set up using the Azure Cloud Shell. Manual details will be added later.
 
 - Connect to the Azure Portal
