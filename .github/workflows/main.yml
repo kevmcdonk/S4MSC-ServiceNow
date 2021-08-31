@@ -41,6 +41,6 @@ jobs:
           # Incremental (only add resources to resource group) or Complete (remove extra resources from resource group) or Validate (only validates the template).
           deploymentMode: Incremental
           # Supply deployment parameter values.
-          parameters: # optional
+          parameters: connections_twitter_name=S4MSCTwitter region=uksouth tenantId=${{ secrets.TenantID }} clientId=${{ secrets.AppRegClientId }} secret=${{ secrets.Secret }}
           # Specify whether to fail the action if some data is written to stderr stream of az cli. Valid values are: true, false
-          failOnStdErr: true
+          failOnStdErr: false
