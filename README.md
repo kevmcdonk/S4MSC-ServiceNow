@@ -11,7 +11,7 @@ The code in this repo includes the individual Logic Apps as well as the ARM Temp
 - Install NVM using commands below (due to [issue with version of Node used](https://github.com/pnp/cli-microsoft365/issues/2017))
 
 ```bash
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
