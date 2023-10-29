@@ -2,17 +2,17 @@
     "definition": {
         "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
         "actions": {
-            "Check_S4MSC-TwitterSearchConnector_exists": {
+            "Check_S4MSC-SalesforceSearchConnector_exists": {
                 "inputs": {
                     "authentication": {
                         "audience": "https://graph.microsoft.com",
-                        "clientId": "",
-                        "secret": "",
-                        "tenant": "",
+                        "clientId": "b1a79309-6254-4a6d-bac2-54e00ad515c6",
+                        "secret": "NZC8Q~1x2zKjrwaeWf2Ytl_VrDQI~g5sZ7fAQdd2",
+                        "tenant": "b618d3d2-c131-42fd-a629-3711d84af275",
                         "type": "ActiveDirectoryOAuth"
                     },
                     "method": "GET",
-                    "uri": "https://graph.microsoft.com/beta/external/connections/S4MSC-TwitterSearchConnector"
+                    "uri": "https://graph.microsoft.com/beta/external/connections/S4MSCSalesforceSearchConnector"
                 },
                 "runAfter": {},
                 "type": "Http"
@@ -21,41 +21,41 @@
                 "inputs": {
                     "authentication": {
                         "audience": "https://graph.microsoft.com",
-                        "clientId": "",
-                        "secret": "",
-                        "tenant": "",
+                        "clientId": "b1a79309-6254-4a6d-bac2-54e00ad515c6",
+                        "secret": "NZC8Q~1x2zKjrwaeWf2Ytl_VrDQI~g5sZ7fAQdd2",
+                        "tenant": "b618d3d2-c131-42fd-a629-3711d84af275",
                         "type": "ActiveDirectoryOAuth"
                     },
                     "method": "GET",
-                    "uri": "https://graph.microsoft.com/beta/external/connections/S4MSC-TwitterTwitterSearchConnector/schema"
+                    "uri": "https://graph.microsoft.com/beta/external/connections/S4MSCSalesforceSearchConnector/schema"
                 },
                 "runAfter": {
-                    "Create_S4MSC-TwitterSearchConnector_if_doesn't_exist": [
+                    "Create_S4MSC-SalesforceSearchConnector_if_doesn't_exist": [
                         "Succeeded",
                         "Skipped"
                     ]
                 },
                 "type": "Http"
             },
-            "Create_S4MSC-TwitterSearchConnector_if_doesn't_exist": {
+            "Create_S4MSC-SalesforceSearchConnector_if_doesn't_exist": {
                 "inputs": {
                     "authentication": {
                         "audience": "https://graph.microsoft.com",
-                        "clientId": "",
-                        "secret": "",
-                        "tenant": "",
+                        "clientId": "b1a79309-6254-4a6d-bac2-54e00ad515c6",
+                        "secret": "NZC8Q~1x2zKjrwaeWf2Ytl_VrDQI~g5sZ7fAQdd2",
+                        "tenant": "b618d3d2-c131-42fd-a629-3711d84af275",
                         "type": "ActiveDirectoryOAuth"
                     },
                     "body": {
                         "description": "Connector for showing key tweets",
-                        "id": "S4MSC-TwitterSearchConnector",
-                        "name": "Twitter Connector"
+                        "id": "S4MSCSalesforceSearchConnector",
+                        "name": "Salesforce Connector"
                     },
                     "method": "POST",
                     "uri": "https://graph.microsoft.com/beta/external/connections"
                 },
                 "runAfter": {
-                    "Check_S4MSC-TwitterSearchConnector_exists": [
+                    "Check_S4MSC-SalesforceSearchConnector_exists": [
                         "Failed"
                     ]
                 },
@@ -65,9 +65,9 @@
                 "inputs": {
                     "authentication": {
                         "audience": "https://graph.microsoft.com",
-                        "clientId": "",
-                        "secret": "",
-                        "tenant": "",
+                        "clientId": "b1a79309-6254-4a6d-bac2-54e00ad515c6",
+                        "secret": "NZC8Q~1x2zKjrwaeWf2Ytl_VrDQI~g5sZ7fAQdd2",
+                        "tenant": "b618d3d2-c131-42fd-a629-3711d84af275",
                         "type": "ActiveDirectoryOAuth"
                     },
                     "body": {
@@ -78,7 +78,7 @@
                                 "isRefinable": false,
                                 "isRetrievable": true,
                                 "isSearchable": true,
-                                "name": "TweetText",
+                                "name": "ItemInternalId",
                                 "type": "String"
                             },
                             {
@@ -86,7 +86,7 @@
                                 "isRefinable": false,
                                 "isRetrievable": true,
                                 "isSearchable": true,
-                                "name": "TweetId",
+                                "name": "AccountId",
                                 "type": "String"
                             },
                             {
@@ -94,15 +94,7 @@
                                 "isRefinable": false,
                                 "isRetrievable": true,
                                 "isSearchable": false,
-                                "name": "CreatedAt",
-                                "type": "DateTime"
-                            },
-                            {
-                                "isQueryable": false,
-                                "isRefinable": false,
-                                "isRetrievable": true,
-                                "isSearchable": false,
-                                "name": "RetweetCount",
+                                "name": "Amount",
                                 "type": "Int64"
                             },
                             {
@@ -110,45 +102,675 @@
                                 "isRefinable": false,
                                 "isRetrievable": true,
                                 "isSearchable": true,
-                                "name": "TweetedByUserName",
+                                "name": "CampaignId",
                                 "type": "String"
                             },
                             {
                                 "isQueryable": true,
-                                "isRefinable": false,
-                                "isRetrievable": true,
-                                "isSearchable": true,
-                                "name": "TweetByFullName",
-                                "type": "String"
-                            },
-                            {
-                                "isQueryable": true,
-                                "isRefinable": false,
-                                "isRetrievable": true,
-                                "isSearchable": true,
-                                "name": "OriginalTweetUserName",
-                                "type": "String"
-                            },
-                            {
-                                "isQueryable": true,
-                                "isRefinable": false,
-                                "isRetrievable": true,
-                                "isSearchable": true,
-                                "name": "OriginalTweetFullName",
-                                "type": "String"
-                            },
-                            {
-                                "isQueryable": false,
                                 "isRefinable": false,
                                 "isRetrievable": true,
                                 "isSearchable": false,
-                                "name": "ProfileImageUrl",
+                                "name": "CloseDate",
+                                "type": "DateTime"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "CreatedById",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": false,
+                                "name": "CreatedDate",
+                                "type": "DateTime"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "Description",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": false,
+                                "name": "ExpectedRevenue",
+                                "type": "Int64"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "Fiscal",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": false,
+                                "name": "FiscalQuarter",
+                                "type": "Int64"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": false,
+                                "name": "FiscalYear",
+                                "type": "Int64"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "ForecastCategory",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "ForecastCategoryName",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "HasOpenActivity",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "HasOpportunityLineItem",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "HasOverdueTask",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "Id",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "IsClosed",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "IsDeleted",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "IsPrivate",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "IsWon",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": false,
+                                "name": "LastActivityDate",
+                                "type": "DateTime"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "LastModifiedById",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": false,
+                                "name": "LastModifiedDate",
+                                "type": "DateTime"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": false,
+                                "name": "LastReferencedDate",
+                                "type": "DateTime"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": false,
+                                "name": "LastViewedDate",
+                                "type": "DateTime"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "LeadSource",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "Name",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "NextStep",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "OwnerId",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "Pricebook2Id",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "Probability",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "StageName",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "SystemModstamp",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "TotalOpportunityQuantity",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "Type",
                                 "type": "String"
                             }
                         ]
                     },
                     "method": "POST",
-                    "uri": "https://graph.microsoft.com/beta/external/connections/S4MSC-TwitterSearchConnector/schema"
+                    "uri": "https://graph.microsoft.com/beta/external/connections/S4MSCSalesforceSearchConnector/schema"
+                },
+                "runAfter": {
+                    "Check_schema_exists": [
+                        "Failed"
+                    ]
+                },
+                "type": "Http"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {},
+        "triggers": {
+            "manual": {
+                "inputs": {
+                    "schema": {}
+                },
+                "kind": "Http",
+                "type": "Request"
+            }
+        }
+    },
+    "parameters": {}
+}{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Check_S4MSC-SalesforceSearchConnector_exists": {
+                "inputs": {
+                    "authentication": {
+                        "audience": "https://graph.microsoft.com",
+                        "clientId": "b1a79309-6254-4a6d-bac2-54e00ad515c6",
+                        "secret": "NZC8Q~1x2zKjrwaeWf2Ytl_VrDQI~g5sZ7fAQdd2",
+                        "tenant": "b618d3d2-c131-42fd-a629-3711d84af275",
+                        "type": "ActiveDirectoryOAuth"
+                    },
+                    "method": "GET",
+                    "uri": "https://graph.microsoft.com/beta/external/connections/S4MSCSalesforceSearchConnector"
+                },
+                "runAfter": {},
+                "type": "Http"
+            },
+            "Check_schema_exists": {
+                "inputs": {
+                    "authentication": {
+                        "audience": "https://graph.microsoft.com",
+                        "clientId": "b1a79309-6254-4a6d-bac2-54e00ad515c6",
+                        "secret": "NZC8Q~1x2zKjrwaeWf2Ytl_VrDQI~g5sZ7fAQdd2",
+                        "tenant": "b618d3d2-c131-42fd-a629-3711d84af275",
+                        "type": "ActiveDirectoryOAuth"
+                    },
+                    "method": "GET",
+                    "uri": "https://graph.microsoft.com/beta/external/connections/S4MSCSalesforceSearchConnector/schema"
+                },
+                "runAfter": {
+                    "Create_S4MSC-SalesforceSearchConnector_if_doesn't_exist": [
+                        "Succeeded",
+                        "Skipped"
+                    ]
+                },
+                "type": "Http"
+            },
+            "Create_S4MSC-SalesforceSearchConnector_if_doesn't_exist": {
+                "inputs": {
+                    "authentication": {
+                        "audience": "https://graph.microsoft.com",
+                        "clientId": "b1a79309-6254-4a6d-bac2-54e00ad515c6",
+                        "secret": "NZC8Q~1x2zKjrwaeWf2Ytl_VrDQI~g5sZ7fAQdd2",
+                        "tenant": "b618d3d2-c131-42fd-a629-3711d84af275",
+                        "type": "ActiveDirectoryOAuth"
+                    },
+                    "body": {
+                        "description": "Connector for showing key tweets",
+                        "id": "S4MSCSalesforceSearchConnector",
+                        "name": "Salesforce Connector"
+                    },
+                    "method": "POST",
+                    "uri": "https://graph.microsoft.com/beta/external/connections"
+                },
+                "runAfter": {
+                    "Check_S4MSC-SalesforceSearchConnector_exists": [
+                        "Failed"
+                    ]
+                },
+                "type": "Http"
+            },
+            "Create_schema_if_it_doesn't_exists": {
+                "inputs": {
+                    "authentication": {
+                        "audience": "https://graph.microsoft.com",
+                        "clientId": "b1a79309-6254-4a6d-bac2-54e00ad515c6",
+                        "secret": "NZC8Q~1x2zKjrwaeWf2Ytl_VrDQI~g5sZ7fAQdd2",
+                        "tenant": "b618d3d2-c131-42fd-a629-3711d84af275",
+                        "type": "ActiveDirectoryOAuth"
+                    },
+                    "body": {
+                        "baseType": "microsoft.graph.externalItem",
+                        "properties": [
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "ItemInternalId",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "AccountId",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": false,
+                                "name": "Amount",
+                                "type": "Int64"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "CampaignId",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": false,
+                                "name": "CloseDate",
+                                "type": "DateTime"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "CreatedById",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": false,
+                                "name": "CreatedDate",
+                                "type": "DateTime"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "Description",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": false,
+                                "name": "ExpectedRevenue",
+                                "type": "Int64"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "Fiscal",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": false,
+                                "name": "FiscalQuarter",
+                                "type": "Int64"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": false,
+                                "name": "FiscalYear",
+                                "type": "Int64"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "ForecastCategory",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "ForecastCategoryName",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "HasOpenActivity",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "HasOpportunityLineItem",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "HasOverdueTask",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "Id",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "IsClosed",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "IsDeleted",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "IsPrivate",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "IsWon",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": false,
+                                "name": "LastActivityDate",
+                                "type": "DateTime"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "LastModifiedById",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": false,
+                                "name": "LastModifiedDate",
+                                "type": "DateTime"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": false,
+                                "name": "LastReferencedDate",
+                                "type": "DateTime"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": false,
+                                "name": "LastViewedDate",
+                                "type": "DateTime"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "LeadSource",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "Name",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "NextStep",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "OwnerId",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "Pricebook2Id",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "Probability",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "StageName",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "SystemModstamp",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "TotalOpportunityQuantity",
+                                "type": "String"
+                            },
+                            {
+                                "isQueryable": true,
+                                "isRefinable": false,
+                                "isRetrievable": true,
+                                "isSearchable": true,
+                                "name": "Type",
+                                "type": "String"
+                            }
+                        ]
+                    },
+                    "method": "POST",
+                    "uri": "https://graph.microsoft.com/beta/external/connections/S4MSCSalesforceSearchConnector/schema"
                 },
                 "runAfter": {
                     "Check_schema_exists": [
