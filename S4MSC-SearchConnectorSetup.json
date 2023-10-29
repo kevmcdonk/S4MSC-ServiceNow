@@ -6,9 +6,9 @@
                 "inputs": {
                     "authentication": {
                         "audience": "https://graph.microsoft.com",
-                        "clientId": "b1a79309-6254-4a6d-bac2-54e00ad515c6",
-                        "secret": "NZC8Q~1x2zKjrwaeWf2Ytl_VrDQI~g5sZ7fAQdd2",
-                        "tenant": "b618d3d2-c131-42fd-a629-3711d84af275",
+                        "clientId": "",
+                        "secret": "",
+                        "tenant": "",
                         "type": "ActiveDirectoryOAuth"
                     },
                     "method": "GET",
@@ -21,9 +21,9 @@
                 "inputs": {
                     "authentication": {
                         "audience": "https://graph.microsoft.com",
-                        "clientId": "b1a79309-6254-4a6d-bac2-54e00ad515c6",
-                        "secret": "NZC8Q~1x2zKjrwaeWf2Ytl_VrDQI~g5sZ7fAQdd2",
-                        "tenant": "b618d3d2-c131-42fd-a629-3711d84af275",
+                        "clientId": "",
+                        "secret": "",
+                        "tenant": "",
                         "type": "ActiveDirectoryOAuth"
                     },
                     "method": "GET",
@@ -41,9 +41,9 @@
                 "inputs": {
                     "authentication": {
                         "audience": "https://graph.microsoft.com",
-                        "clientId": "b1a79309-6254-4a6d-bac2-54e00ad515c6",
-                        "secret": "NZC8Q~1x2zKjrwaeWf2Ytl_VrDQI~g5sZ7fAQdd2",
-                        "tenant": "b618d3d2-c131-42fd-a629-3711d84af275",
+                        "clientId": "",
+                        "secret": "",
+                        "tenant": "",
                         "type": "ActiveDirectoryOAuth"
                     },
                     "body": {
@@ -65,9 +65,9 @@
                 "inputs": {
                     "authentication": {
                         "audience": "https://graph.microsoft.com",
-                        "clientId": "b1a79309-6254-4a6d-bac2-54e00ad515c6",
-                        "secret": "NZC8Q~1x2zKjrwaeWf2Ytl_VrDQI~g5sZ7fAQdd2",
-                        "tenant": "b618d3d2-c131-42fd-a629-3711d84af275",
+                        "clientId": "",
+                        "secret": "",
+                        "tenant": "",
                         "type": "ActiveDirectoryOAuth"
                     },
                     "body": {
@@ -404,9 +404,9 @@
                 "inputs": {
                     "authentication": {
                         "audience": "https://graph.microsoft.com",
-                        "clientId": "b1a79309-6254-4a6d-bac2-54e00ad515c6",
-                        "secret": "NZC8Q~1x2zKjrwaeWf2Ytl_VrDQI~g5sZ7fAQdd2",
-                        "tenant": "b618d3d2-c131-42fd-a629-3711d84af275",
+                        "clientId": "",
+                        "secret": "",
+                        "tenant": "",
                         "type": "ActiveDirectoryOAuth"
                     },
                     "method": "GET",
@@ -419,9 +419,9 @@
                 "inputs": {
                     "authentication": {
                         "audience": "https://graph.microsoft.com",
-                        "clientId": "b1a79309-6254-4a6d-bac2-54e00ad515c6",
-                        "secret": "NZC8Q~1x2zKjrwaeWf2Ytl_VrDQI~g5sZ7fAQdd2",
-                        "tenant": "b618d3d2-c131-42fd-a629-3711d84af275",
+                        "clientId": "",
+                        "secret": "",
+                        "tenant": "",
                         "type": "ActiveDirectoryOAuth"
                     },
                     "method": "GET",
@@ -439,9 +439,9 @@
                 "inputs": {
                     "authentication": {
                         "audience": "https://graph.microsoft.com",
-                        "clientId": "b1a79309-6254-4a6d-bac2-54e00ad515c6",
-                        "secret": "NZC8Q~1x2zKjrwaeWf2Ytl_VrDQI~g5sZ7fAQdd2",
-                        "tenant": "b618d3d2-c131-42fd-a629-3711d84af275",
+                        "clientId": "",
+                        "secret": "",
+                        "tenant": "",
                         "type": "ActiveDirectoryOAuth"
                     },
                     "body": {
@@ -463,9 +463,9 @@
                 "inputs": {
                     "authentication": {
                         "audience": "https://graph.microsoft.com",
-                        "clientId": "b1a79309-6254-4a6d-bac2-54e00ad515c6",
-                        "secret": "NZC8Q~1x2zKjrwaeWf2Ytl_VrDQI~g5sZ7fAQdd2",
-                        "tenant": "b618d3d2-c131-42fd-a629-3711d84af275",
+                        "clientId": "",
+                        "secret": "",
+                        "tenant": "",
                         "type": "ActiveDirectoryOAuth"
                     },
                     "body": {
