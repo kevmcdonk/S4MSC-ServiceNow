@@ -3,28 +3,25 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "connections_servicenow_name": {
-            "value": "SNowTest3"
+            "value": "S4MSCServiceNowTest"
         },
         "tenantId": {
-            "value": "b618d3d2-c131-42fd-a629-3711d84af275"
+            "value": ""
         },
         "clientId": {
-            "value": "b1a79309-6254-4a6d-bac2-54e00ad515c6"
+            "value": ""
         },
         "secret": {
-            "value": "g2q8Q~P0WRLuy65b3oZABZ4PdPBkp3~xVWKzEcyT"
-        },
-        "region": {
-            "value": "uksouth"
+            "value": ""
         },
         "snowInstance": {
-            "value": "dev165113"
+            "value": ""
         },
         "snowUsername": {
-            "value": "admin"
+            "value": ""
         },
         "snowPassword": {
-            "value": "CIwgF5$i7pU^"
+            "value": ""
         }
     }
 }

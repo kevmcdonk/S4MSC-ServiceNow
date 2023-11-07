@@ -1,4 +1,4 @@
-# Samples for Microsoft Search Connectors - Twitter
+# Samples for Microsoft Search Connectors - ServiceNow
 
 Sample for creating Microsoft Search custom indexes
 

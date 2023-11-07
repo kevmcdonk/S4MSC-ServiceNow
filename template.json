@@ -2,8 +2,8 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "connections_twitter_name": {
-            "defaultValue": "S4MSCTwitter",
+        "connections_servicenow_name": {
+            "defaultValue": "S4MSCServiceNowTest",
             "type": "String"
         },
         "region": {
@@ -11,36 +11,82 @@
             "type": "String"
         },
         "tenantId": {
-            "defaultValue": "[parameters('region')]",
+            "defaultValue": "",
             "type": "String"
         },
         "clientId": {
-            "defaultValue": "[parameters('region')]",
+            "defaultValue": "",
             "type": "String"
         },
         "secret": {
-            "defaultValue": "[parameters('region')]",
+            "defaultValue": "",
+            "type": "String"
+        },
+        "snowInstance": {
+            "defaultValue": "",
+            "type": "String"
+        },
+        "snowUsername": {
+            "defaultValue": "",
+            "type": "String"
+        },
+        "snowPassword": {
+            "defaultValue": "",
             "type": "String"
         }
     },
     "variables": {
-        "workflows_SearchConnectorSetup_name": "[concat('la-',parameters('connections_twitter_name'),'-setup')]",
-        "workflows_SearchConnectorSearch_name": "[concat('la-',parameters('connections_twitter_name'),'-search')]",
-        "workflows_SearchConnectorTrigger_name": "[concat('la-',parameters('connections_twitter_name'),'-trigger')]",
-        "graphConnectorUrl":"[concat('https://graph.microsoft.com/beta/external/connections/',parameters('connections_twitter_name'),'SearchConnector')]"
+        "workflows_SearchConnectorSetup_name": "[concat('la-',parameters('connections_servicenow_name'),'-setup')]",
+        "workflows_SearchConnectorSearch_name": "[concat('la-',parameters('connections_servicenow_name'),'-search')]",
+        "graphConnectorUrl": "[concat('https://graph.microsoft.com/beta/external/connections/',parameters('connections_servicenow_name'))]"
     },
     "resources": [
+
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "service-now",
+            "location": "[parameters('region')]",
+            "kind": "V1",
+            "properties": {
+                "displayName": "ServiceNow",
+                "statuses": [
+                    {
+                        "status": "Connected"
+                    }
+                ],
+                "customParameterValues": {},
+                "api": {
+                    "name": "service-now",
+                    "displayName": "ServiceNow",
+                    "description": "ServiceNow is an online social networking service that enables users to send and receive short messages called 'tweets'. Connect to ServiceNow to manage your tweets. You can perform various actions such as send tweet, search, view followers, etc.",
+                    "iconUri": "[concat('https://connectoricons-prod.azureedge.net/releases/v1.0.1473/1.0.1473.2431/servicenow/icon.png')]",
+                    "brandColor": "#5fa9dd",
+                    "id": "[concat('/subscriptions/',subscription().subscriptionId,'/providers/Microsoft.Web/locations/',parameters('region'),'/managedApis/service-now')]",
+                    "type": "Microsoft.Web/locations/managedApis"
+                },
+                "parameterValues": {
+                    "instance": "[parameters('snowInstance')]",
+                    "username": "[parameters('snowUsername')]",
+                    "password": "[parameters('snowPassword')]"
+                },
+                "testLinks": []
+            }
+        },
         {
             "type": "Microsoft.Logic/workflows",
             "apiVersion": "2017-07-01",
             "name": "[variables('workflows_SearchConnectorSetup_name')]",
             "location": "[parameters('region')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', 'service-now')]"
+            ],
             "properties": {
                 "state": "Enabled",
                 "definition": {
                     "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
                     "actions": {
-                        "Check_TwitterSearchConnector_exists": {
+                        "Check_ServiceNowSearchConnector_exists": {
                             "inputs": {
                                 "authentication": {
                                     "audience": "https://graph.microsoft.com",
@@ -68,14 +114,14 @@
                                 "uri": "[concat(variables('graphConnectorUrl'),'/schema')]"
                             },
                             "runAfter": {
-                                "Create_S4MSC-TwitterSearchConnector_if_doesn't_exist": [
+                                "Create_S4MSC-ServiceNowSearchConnector_if_not_exist": [
                                     "Succeeded",
                                     "Skipped"
                                 ]
                             },
                             "type": "Http"
                         },
-                        "Create_S4MSC-TwitterSearchConnector_if_doesn't_exist": {
+                        "Create_S4MSC-ServiceNowSearchConnector_if_not_exist": {
                             "inputs": {
                                 "authentication": {
                                     "audience": "https://graph.microsoft.com",
@@ -86,20 +132,99 @@
                                 },
                                 "body": {
                                     "description": "Connector for showing key tweets",
-                                    "id": "[concat(parameters('connections_twitter_name'),'SearchConnector')]",
-                                    "name": "Twitter Connector"
+                                    "id": "[parameters('connections_servicenow_name')]",
+                                    "name": "ServiceNow Connector",
+                                    "enabledContentExperiences": "search",
+                                    "configuration": {
+                                        "authorizedApps": [
+                                            "[parameters('clientId')]"
+                                        ],
+                                        "authorizedAppIds": [
+                                            "[parameters('clientId')]"
+                                        ]
+                                    },
+                                    "searchSettings": {
+                                        "searchResultTemplates": [
+                                            {
+                                                "id": "[parameters('connections_servicenow_name')]",
+                                                "layout": {
+                                                    "type": "AdaptiveCard",
+                                                    "version": "1.3",
+                                                    "body": [
+                                                        {
+                                                            "type": "ColumnSet",
+                                                            "columns": [
+                                                                {
+                                                                    "type": "Column",
+                                                                    "width": "auto",
+                                                                    "items": [
+                                                                        {
+                                                                            "type": "Image",
+                                                                            "url": "https://searchuxcdn.blob.core.windows.net/designerapp/images/DefaultMRTIcon.png",
+                                                                            "size": "Small",
+                                                                            "horizontalAlignment": "Center",
+                                                                            "description": "Thumbnail image"
+                                                                        }
+                                                                    ],
+                                                                    "height": "stretch"
+                                                                },
+                                                                {
+                                                                    "type": "Column",
+                                                                    "width": 8,
+                                                                    "horizontalAlignment": "Center",
+                                                                    "spacing": "Medium",
+                                                                    "items": [
+                                                                        {
+                                                                            "type": "TextBlock",
+                                                                            "text": "[concat('https://',parameters('snowInstance'),'.service-now.com/')]",
+                                                                            "weight": "Bolder",
+                                                                            "color": "Accent",
+                                                                            "size": "Medium",
+                                                                            "maxLines": 3
+                                                                        },
+                                                                        {
+                                                                            "type": "TextBlock",
+                                                                            "text": "${description}",
+                                                                            "wrap": true,
+                                                                            "maxLines": 3,
+                                                                            "spacing": "Medium"
+                                                                        }
+                                                                    ]
+                                                                },
+                                                                {
+                                                                    "type": "Column",
+                                                                    "width": 2,
+                                                                    "items": [
+                                                                        {
+                                                                            "type": "Image",
+                                                                            "url": "${image}",
+                                                                            "description": "${description}",
+                                                                            "horizontalAlignment": "Center"
+                                                                        }
+                                                                    ],
+                                                                    "$when": "${image != ''}"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ],
+                                                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json"
+                                                },
+                                                "priority": 0
+                                            }
+                                        ]
+                                    }
                                 },
                                 "method": "POST",
                                 "uri": "https://graph.microsoft.com/beta/external/connections"
                             },
                             "runAfter": {
-                                "Check_TwitterSearchConnector_exists": [
+                                "Check_ServiceNowSearchConnector_exists": [
                                     "Failed"
                                 ]
                             },
                             "type": "Http"
                         },
-                        "Create_schema_if_it_doesn't_exists": {
+                        "Create_schema_if_it_not_exists": {
                             "inputs": {
                                 "authentication": {
                                     "audience": "https://graph.microsoft.com",
@@ -115,8 +240,16 @@
                                             "isQueryable": true,
                                             "isRefinable": false,
                                             "isRetrievable": true,
+                                            "isSearchable": false,
+                                            "name": "price",
+                                            "type": "double"
+                                        },
+                                        {
+                                            "isQueryable": true,
+                                            "isRefinable": false,
+                                            "isRetrievable": true,
                                             "isSearchable": true,
-                                            "name": "TweetText",
+                                            "name": "productid",
                                             "type": "String"
                                         },
                                         {
@@ -124,7 +257,7 @@
                                             "isRefinable": false,
                                             "isRetrievable": true,
                                             "isSearchable": true,
-                                            "name": "TweetId",
+                                            "name": "group",
                                             "type": "String"
                                         },
                                         {
@@ -132,56 +265,88 @@
                                             "isRefinable": false,
                                             "isRetrievable": true,
                                             "isSearchable": false,
-                                            "name": "CreatedAt",
-                                            "type": "DateTime"
+                                            "name": "order",
+                                            "type": "double"
                                         },
                                         {
-                                            "isQueryable": false,
+                                            "isQueryable": true,
+                                            "isRefinable": false,
+                                            "isRetrievable": true,
+                                            "isSearchable": true,
+                                            "name": "image",
+                                            "type": "String"
+                                        },
+                                        {
+                                            "isQueryable": true,
+                                            "isRefinable": false,
+                                            "isRetrievable": true,
+                                            "isSearchable": true,
+                                            "name": "workflow",
+                                            "type": "String"
+                                        },
+                                        {
+                                            "isQueryable": true,
+                                            "isRefinable": false,
+                                            "isRetrievable": true,
+                                            "isSearchable": true,
+                                            "name": "active",
+                                            "type": "String"
+                                        },
+                                        {
+                                            "isQueryable": true,
+                                            "isRefinable": false,
+                                            "isRetrievable": true,
+                                            "isSearchable": true,
+                                            "name": "name",
+                                            "type": "String"
+                                        },
+                                        {
+                                            "isQueryable": true,
+                                            "isRefinable": false,
+                                            "isRetrievable": true,
+                                            "isSearchable": true,
+                                            "name": "shortdescription",
+                                            "type": "String"
+                                        },
+                                        {
+                                            "isQueryable": true,
+                                            "isRefinable": false,
+                                            "isRetrievable": true,
+                                            "isSearchable": true,
+                                            "name": "icon",
+                                            "type": "String"
+                                        },
+                                        {
+                                            "isQueryable": true,
+                                            "isRefinable": false,
+                                            "isRetrievable": true,
+                                            "isSearchable": true,
+                                            "name": "description",
+                                            "type": "String"
+                                        },
+                                        {
+                                            "isQueryable": true,
+                                            "isRefinable": false,
+                                            "isRetrievable": true,
+                                            "isSearchable": true,
+                                            "name": "vendor",
+                                            "type": "String"
+                                        },
+                                        {
+                                            "isQueryable": true,
+                                            "isRefinable": false,
+                                            "isRetrievable": true,
+                                            "isSearchable": true,
+                                            "name": "sccatalogs",
+                                            "type": "String"
+                                        },
+                                        {
+                                            "isQueryable": true,
                                             "isRefinable": false,
                                             "isRetrievable": true,
                                             "isSearchable": false,
-                                            "name": "RetweetCount",
-                                            "type": "Int64"
-                                        },
-                                        {
-                                            "isQueryable": true,
-                                            "isRefinable": false,
-                                            "isRetrievable": true,
-                                            "isSearchable": true,
-                                            "name": "TweetedByUserName",
-                                            "type": "String"
-                                        },
-                                        {
-                                            "isQueryable": true,
-                                            "isRefinable": false,
-                                            "isRetrievable": true,
-                                            "isSearchable": true,
-                                            "name": "TweetByFullName",
-                                            "type": "String"
-                                        },
-                                        {
-                                            "isQueryable": true,
-                                            "isRefinable": false,
-                                            "isRetrievable": true,
-                                            "isSearchable": true,
-                                            "name": "OriginalTweetUserName",
-                                            "type": "String"
-                                        },
-                                        {
-                                            "isQueryable": true,
-                                            "isRefinable": false,
-                                            "isRetrievable": true,
-                                            "isSearchable": true,
-                                            "name": "OriginalTweetFullName",
-                                            "type": "String"
-                                        },
-                                        {
-                                            "isQueryable": false,
-                                            "isRefinable": false,
-                                            "isRetrievable": true,
-                                            "isSearchable": false,
-                                            "name": "ProfileImageUrl",
-                                            "type": "String"
+                                            "name": "cost",
+                                            "type": "double"
                                         }
                                     ]
                                 },
@@ -191,6 +356,109 @@
                             "runAfter": {
                                 "Check_schema_exists": [
                                     "Failed"
+                                ]
+                            },
+                            "type": "Http"
+                        },
+                        "HTTP": {
+                            "inputs": {
+                                "authentication": {
+                                    "audience": "https://graph.microsoft.com",
+                                    "clientId": "[parameters('clientId')]",
+                                    "secret": "[parameters('secret')]",
+                                    "tenant": "[parameters('tenantId')]",
+                                    "type": "ActiveDirectoryOAuth"
+                                },
+                                "body": {
+                                    "description": "Connector for showing key tweets",
+                                    "id": "[parameters('connections_servicenow_name')]",
+                                    "name": "ServiceNow Connector",
+                                    "enabledContentExperiences": "search",
+                                    "configuration": {
+                                        "authorizedApps": [
+                                            "[parameters('clientId')]"
+                                        ],
+                                        "authorizedAppIds": [
+                                            "[parameters('clientId')]"
+                                        ]
+                                    },
+                                    "searchSettings": {
+                                        "searchResultTemplates": [
+                                            {
+                                                "id": "[parameters('connections_servicenow_name')]",
+                                                "layout": {
+                                                    "type": "AdaptiveCard",
+                                                    "version": "1.3",
+                                                    "body": [
+                                                        {
+                                                            "type": "ColumnSet",
+                                                            "columns": [
+                                                                {
+                                                                    "type": "Column",
+                                                                    "width": "auto",
+                                                                    "items": [
+                                                                        {
+                                                                            "type": "Image",
+                                                                            "url": "https://searchuxcdn.blob.core.windows.net/designerapp/images/DefaultMRTIcon.png",
+                                                                            "size": "Small",
+                                                                            "horizontalAlignment": "Center",
+                                                                            "description": "Thumbnail image"
+                                                                        }
+                                                                    ],
+                                                                    "height": "stretch"
+                                                                },
+                                                                {
+                                                                    "type": "Column",
+                                                                    "width": 8,
+                                                                    "horizontalAlignment": "Center",
+                                                                    "spacing": "Medium",
+                                                                    "items": [
+                                                                        {
+                                                                            "type": "TextBlock",
+                                                                            "text": "[concat('https://',parameters('snowInstance'),'.service-now.com/')]",
+                                                                            "weight": "Bolder",
+                                                                            "color": "Accent",
+                                                                            "size": "Medium",
+                                                                            "maxLines": 3
+                                                                        },
+                                                                        {
+                                                                            "type": "TextBlock",
+                                                                            "text": "${description}",
+                                                                            "wrap": true,
+                                                                            "maxLines": 3,
+                                                                            "spacing": "Medium"
+                                                                        }
+                                                                    ]
+                                                                },
+                                                                {
+                                                                    "type": "Column",
+                                                                    "width": 2,
+                                                                    "items": [
+                                                                        {
+                                                                            "type": "Image",
+                                                                            "url": "${image}",
+                                                                            "description": "${description}",
+                                                                            "horizontalAlignment": "Center"
+                                                                        }
+                                                                    ],
+                                                                    "$when": "${image != ''}"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ],
+                                                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json"
+                                                },
+                                                "priority": 0
+                                            }
+                                        ]
+                                    }
+                                },
+                                "method": "PATCH",
+                                "uri": "[variables('graphConnectorUrl')]"
+                            },
+                            "runAfter": {
+                                "Create_S4MSC-ServiceNowSearchConnector_if_not_exist": [
+                                    "Skipped"
                                 ]
                             },
                             "type": "Http"
@@ -213,38 +481,12 @@
             }
         },
         {
-            "type": "Microsoft.Web/connections",
-            "apiVersion": "2016-06-01",
-            "name": "twitter",
-            "location": "[parameters('region')]",
-            "kind": "V1",
-            "properties": {
-                "displayName": "Twitter",
-                "statuses": [
-                    {
-                        "status": "Connected"
-                    }
-                ],
-                "customParameterValues": {},
-                "api": {
-                    "name": "twitter",
-                    "displayName": "Twitter",
-                    "description": "Twitter is an online social networking service that enables users to send and receive short messages called 'tweets'. Connect to Twitter to manage your tweets. You can perform various actions such as send tweet, search, view followers, etc.",
-                    "iconUri": "[concat('https://connectoricons-prod.azureedge.net/releases/v1.0.1473/1.0.1473.2431/twitter/icon.png')]",
-                    "brandColor": "#5fa9dd",
-                    "id": "[concat('/subscriptions/',subscription().subscriptionId,'/providers/Microsoft.Web/locations/',parameters('region'),'/managedApis/twitter')]",
-                    "type": "Microsoft.Web/locations/managedApis"
-                },
-                "testLinks": []
-            }
-        },
-        {
             "type": "Microsoft.Logic/workflows",
             "apiVersion": "2017-07-01",
             "name": "[variables('workflows_SearchConnectorSearch_name')]",
             "location": "[parameters('region')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/connections', 'twitter')]"
+                "[resourceId('Microsoft.Web/connections', 'service-now')]"
             ],
             "properties": {
                 "state": "Enabled",
@@ -267,11 +509,16 @@
                         }
                     },
                     "actions": {
+
                         "For_each": {
-                            "foreach": "@body('Search_tweets')",
+                            "foreach": "@body('List_Records')?['result']",
                             "actions": {
-                                "HTTP": {
-                                    "runAfter": {},
+                                "Create_index_if_not_exists": {
+                                    "runAfter": {
+                                        "Get_item_from_index_by_Product_Id": [
+                                            "Failed"
+                                        ]
+                                    },
                                     "type": "Http",
                                     "inputs": {
                                         "authentication": {
@@ -292,42 +539,66 @@
                                             ],
                                             "content": {
                                                 "type": "text",
-                                                "value": "@{items('For_each')['TweetText']}"
+                                                "value": "@{items('For_each')?['sys_name']}"
                                             },
                                             "properties": {
-                                                "TweetByFullName": "@{items('For_each')?['UserDetails']?['FullName']}",
-                                                "TweetId": "@{items('For_each')?['TweetId']}",
-                                                "TweetText": "@{items('For_each')['TweetText']}",
-                                                "TweetedByUserName": "@{items('For_each')?['UserDetails']?['FullName']}"
+                                                "cost": "@float(items('For_each')?['cost'])",
+                                                "description": "@{items('For_each')?['description']}",
+                                                "group": "@{items('For_each')?['group']}",
+                                                "name": "@{items('For_each')?['name']}",
+                                                "order": "@float(items('For_each')?['order'])",
+                                                "price": "@float(items('For_each')?['price'])",
+                                                "shortdescription": "@{items('For_each')?['short_description']}"
                                             },
                                             "type": "microsoft.graph.externalItem"
                                         },
                                         "method": "PUT",
-                                        "uri": "[concat(variables('graphConnectorUrl'),'/items/@{items(''For_each'')?[''TweetId'']}')]"
+                                        "uri": "[concat(variables('graphConnectorUrl'),'/items/@{items(''For_each'')?[''sys_id'']}')]"
+                                    }
+                                },
+                                "Get_item_from_index_by_Product_Id": {
+                                    "runAfter": {},
+                                    "type": "Http",
+                                    "inputs": {
+                                        "authentication": {
+                                            "audience": "https://graph.microsoft.com",
+                                            "clientId": "[parameters('clientId')]",
+                                            "secret": "[parameters('secret')]",
+                                            "tenant": "[parameters('tenantId')]",
+                                            "type": "ActiveDirectoryOAuth"
+                                        },
+                                        "method": "GET",
+                                        "uri": "[concat(variables('graphConnectorUrl'),'/items/@{items(''For_each'')?[''sys_id'']}')]"
                                     }
                                 }
                             },
                             "runAfter": {
-                                "Search_tweets": [
+                                "List_Records": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "Foreach"
+                            "type": "Foreach",
+                            "runtimeConfiguration": {
+                                "concurrency": {
+                                    "repetitions": 1
+                                }
+                            }
                         },
-                        "Search_tweets": {
+                        "List_Records": {
                             "runAfter": {},
                             "type": "ApiConnection",
                             "inputs": {
                                 "host": {
                                     "connection": {
-                                        "name": "@parameters('$connections')['twitter']['connectionId']"
+                                        "name": "@parameters('$connections')['service-now']['connectionId']"
                                     }
                                 },
                                 "method": "get",
-                                "path": "/searchtweets",
+                                "path": "/api/now/v2/table/@{encodeURIComponent('pc_product_cat_item')}",
                                 "queries": {
-                                    "maxResults": 99,
-                                    "searchQuery": "#CollabTalk"
+                                    "sysparm_display_value": false,
+                                    "sysparm_exclude_reference_link": true,
+                                    "sysparm_query": "fields=price,product_id,sys_name,model,state,group,order,image,active,name,vendor_catalog_item,short_description,icon,description,availability,owner,list_price,recurring_price"
                                 }
                             }
                         }
@@ -337,104 +608,10 @@
                 "parameters": {
                     "$connections": {
                         "value": {
-                            "twitter": {
-                                "connectionId": "[resourceId('Microsoft.Web/connections', 'twitter')]",
-                                "connectionName": "twitter",
-                                "id": "/subscriptions/[subscription().subscriptionId]/providers/Microsoft.Web/locations/[parameters('region')]/managedApis/twitter"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Logic/workflows",
-            "apiVersion": "2017-07-01",
-            "name": "[variables('workflows_SearchConnectorTrigger_name')]",
-            "location": "[parameters('region')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/connections', 'twitter')]"
-            ],
-            "properties": {
-                "state": "Enabled",
-                "definition": {
-                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
-                    "contentVersion": "1.0.0.0",
-                    "parameters": {
-                        "$connections": {
-                            "defaultValue": {},
-                            "type": "Object"
-                        }
-                    },
-                    "triggers": {
-                        "When_a_Collabtalk_tweet_is_posted": {
-                            "recurrence": {
-                                "frequency": "Day",
-                                "interval": 1
-                            },
-                            "splitOn": "@triggerBody()?['value']",
-                            "type": "ApiConnection",
-                            "inputs": {
-                                "host": {
-                                    "connection": {
-                                        "name": "@parameters('$connections')['twitter']['connectionId']"
-                                    }
-                                },
-                                "method": "get",
-                                "path": "/onnewtweet",
-                                "queries": {
-                                    "searchQuery": "#MicrosoftSearch"
-                                }
-                            }
-                        }
-                    },
-                    "actions": {
-                        "HTTP": {
-                            "runAfter": {},
-                            "type": "Http",
-                            "inputs": {
-                                "authentication": {
-                                    "audience": "https://graph.microsoft.com",
-                                    "clientId": "[parameters('clientId')]",
-                                    "secret": "[parameters('secret')]",
-                                    "tenant": "[parameters('tenantId')]",
-                                    "type": "ActiveDirectoryOAuth"
-                                },
-                                "body": {
-                                    "acl": [
-                                        {
-                                            "accessType": "grant",
-                                            "identitySource": "azureActiveDirectory",
-                                            "type": "everyone",
-                                            "value": "43c5e796-f484-4157-8c93-73ac8b1cf7bf"
-                                        }
-                                    ],
-                                    "content": {
-                                        "type": "text",
-                                        "value": "@{triggerBody()?['TweetText']}"
-                                    },
-                                    "properties": {
-                                        "TweetByFullName": "@{triggerBody()?['UserDetails']?['FullName']}",
-                                        "TweetId": "@{triggerBody()?['TweetId']}",
-                                        "TweetText": "@{triggerBody()?['TweetText']}",
-                                        "TweetedByUserName": "@{triggerBody()?['UserDetails']?['UserName']}"
-                                    },
-                                    "type": "microsoft.graph.externalItem"
-                                },
-                                "method": "PUT",
-                                "uri": "[concat(variables('graphConnectorUrl'),'/items/@{triggerBody()?[''TweetId'']}')]"
-                            }
-                        }
-                    },
-                    "outputs": {}
-                },
-                "parameters": {
-                    "$connections": {
-                        "value": {
-                            "twitter": {
-                                "connectionId": "[resourceId('Microsoft.Web/connections','twitter')]",
-                                "connectionName": "twitter",
-                                "id": "/subscriptions/[subscription().subscriptionId]/providers/Microsoft.Web/locations/[parameters('region')]/managedApis/twitter"
+                            "service-now": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', 'service-now')]",
+                                "connectionName": "service-now",
+                                "id": "[concat('/subscriptions/',subscription().subscriptionId,'/providers/Microsoft.Web/locations/',parameters('region'),'/managedApis/service-now')]"
                             }
                         }
                     }
