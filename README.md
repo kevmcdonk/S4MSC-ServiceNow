@@ -1,8 +1,30 @@
 # Samples for Microsoft Search Connectors - ServiceNow
 
-Sample for creating Microsoft Search custom indexes
+Sample for creating Microsoft Search custom indexes from ServiceNow content (currently set for the catalogue but changeable to be what is required).
 
-## Setup
+![Local markdown files displayed in Microsoft Search search results](assets/screenshot.png)
+
+## Contributors
+
+- [Kevin McDonnell](https://github.com/kevmcdonk)
+
+
+## Version history
+
+Version|Date|Comments
+-------|----|--------
+1.1|October 11, 2023|Added configuring result layout
+1.0|October 09, 2023|Initial release
+
+## Prerequisites
+
+- [Microsoft 365 Developer tenant](https://developer.microsoft.com/microsoft-365/dev-program)
+- [Microsoft Graph PowerShell SDK](https://learn.microsoft.com/powershell/microsoftgraph/installation?view=graph-powershell-1.0)
+- [Microsoft.PowerShell.SecretManagement](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.secretmanagement/?view=ps-modules)
+- [Microsoft.PowerShell.SecretStore](https://learn.microsoft.com/powershell/module/microsoft.powershell.secretstore/?view=ps-modules)
+- [powershell-yaml](https://www.powershellgallery.com/packages/powershell-yaml/0.4.7)
+
+## Minimal path to awesome
 
 The code in this repo includes the individual Logic Apps as well as the ARM Template for setting up the full resource group. The steps below detail how to set up using the Azure Cloud Shell. Manual details will be added later.
 
@@ -28,26 +50,56 @@ nvm use --lts
 - Add an app registration using [app add](https://pnp.github.io/cli-microsoft365/cmd/aad/app/app-add/) and store the results in variables
 
 ```bash
-newApp=$(m365 aad app add -n S4MSCTwitter --multitenant --withSecret --apisApplication 'https://graph.microsoft.com/ExternalItem.ReadWrite.All' -o json)
+appName="S4MSCSNow"
+region="uksouth"
+snowInstance="devXXXXXX"
+snowUsername="admin"
+snowPassword=""
+
+newApp=$(m365 aad app add -n $appName --multitenant --withSecret --apisApplication 'https://graph.microsoft.com/ExternalItem.ReadWrite.OwnedBy,https://graph.microsoft.com/ExternalConnection.ReadWrite.All' -o json)
 newAppId=`echo $newApp | jq -r '.appId'`
 newTenantId=`echo $newApp | jq -r '.tenantId'`
-newSecret=`echo $newApp | jq -r '.secret'`
+newSecret=`echo $newApp | jq -r '.secrets[0].value'`
 ```
 
 - Create a new Resource Group
 
 ```bash
-az group create --name S4MSCTwitter --location uksouth
+az group create --name $appName --location $region
 ```
 
 - Deploy the Logic Apps using ARM
 
 ```bash
-az deployment group create --name LaDeployment --resource-group S4MSCTwitter --template-uri "https://raw.githubusercontent.com/kevmcdonk/S4MSC-Twitter/main/template.json" --parameters connections_twitter_name=S4MSCTwitter region=uksouth tenantId=$newTenantId clientId=$newAppId secret=$newSecret
+az deployment group create --name LaDeployment --resource-group S4MSCSNow --template-uri "https://raw.githubusercontent.com/kevmcdonk/S4MSC-ServiceNow/main/template.json" --parameters connections_servicenow_name=$appName region=$region tenantId=$newTenantId clientId=$newAppId secret=$newSecret snowInstance=$snowInstance snowUsername=$snowUsername snowPassword=$snowPassword
 ```
 
 - Go to Azure AD in the portal and consent the API permission
-- Go to the Resource Group and select the Twitter connector
+- Go to the Resource Group and select the ServiceNow connector
 - Click on Edit API Connection and then Authorize
 - Run the Setup Logic App
 - Confirm in the Search Settings that an index has been set up
+
+
+## Version history
+
+Version|Date|Comments
+-------|----|--------
+1.1|October 11, 2023|Added configuring result layout
+1.0|October 09, 2023|Initial release
+
+## Help
+
+We do not support samples, but this community is always willing to help, and we want to improve these samples. We use GitHub to track issues, which makes it easy for  community members to volunteer their time and help resolve issues.
+
+You can try looking at [issues related to this sample](https://github.com/pnp/graph-connectors-samples/issues?q=label%3A%22sample%3A%powershell-markdown%22) to see if anybody else is having the same issues.
+
+If you encounter any issues using this sample, [create a new issue](https://github.com/pnp/graph-connectors-samples/issues/new).
+
+Finally, if you have an idea for improvement, [make a suggestion](https://github.com/pnp/graph-connectors-samples/issues/new).
+
+## Disclaimer
+
+**THIS CODE IS PROVIDED *AS IS* WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.**
+
+![](https://m365-visitor-stats.azurewebsites.net/SamplesGallery/pnp-graph-connector-powershell-markdown)
