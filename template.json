@@ -114,7 +114,7 @@
                                 "uri": "[concat(variables('graphConnectorUrl'),'/schema')]"
                             },
                             "runAfter": {
-                                "Create_S4MSC-ServiceNowSearchConnector_if_not_exist": [
+                                "HTTP": [
                                     "Succeeded",
                                     "Skipped"
                                 ]

@@ -50,11 +50,11 @@ nvm use --lts
 - Add an app registration using [app add](https://pnp.github.io/cli-microsoft365/cmd/aad/app/app-add/) and store the results in variables
 
 ```bash
-appName="S4MSCSNow"
+appName="S4MSCSNow2"
 region="uksouth"
-snowInstance="devXXXXXX"
+snowInstance="dev165113"
 snowUsername="admin"
-snowPassword=""
+snowPassword="CIwgF5$i7pU^"
 
 newApp=$(m365 aad app add -n $appName --multitenant --withSecret --apisApplication 'https://graph.microsoft.com/ExternalItem.ReadWrite.OwnedBy,https://graph.microsoft.com/ExternalConnection.ReadWrite.All' -o json)
 newAppId=`echo $newApp | jq -r '.appId'`
@@ -71,7 +71,7 @@ az group create --name $appName --location $region
 - Deploy the Logic Apps using ARM
 
 ```bash
-az deployment group create --name LaDeployment --resource-group S4MSCSNow --template-uri "https://raw.githubusercontent.com/kevmcdonk/S4MSC-ServiceNow/main/template.json" --parameters connections_servicenow_name=$appName region=$region tenantId=$newTenantId clientId=$newAppId secret=$newSecret snowInstance=$snowInstance snowUsername=$snowUsername snowPassword=$snowPassword
+az deployment group create --name LaDeployment --resource-group $appName --template-uri "https://raw.githubusercontent.com/kevmcdonk/S4MSC-ServiceNow/main/template.json" --parameters connections_servicenow_name=$appName region=$region tenantId=$newTenantId clientId=$newAppId secret=$newSecret snowInstance=$snowInstance snowUsername=$snowUsername snowPassword=$snowPassword
 ```
 
 - Go to Azure AD in the portal and consent the API permission
@@ -79,7 +79,6 @@ az deployment group create --name LaDeployment --resource-group S4MSCSNow --temp
 - Click on Edit API Connection and then Authorize
 - Run the Setup Logic App
 - Confirm in the Search Settings that an index has been set up
-
 
 ## Version history
 
