@@ -38,7 +38,7 @@
     "variables": {
         "workflows_SearchConnectorSetup_name": "[concat('la-',parameters('connections_servicenow_name'),'-setup')]",
         "workflows_SearchConnectorSearch_name": "[concat('la-',parameters('connections_servicenow_name'),'-search')]",
-        "graphConnectorUrl": "[concat('https://graph.microsoft.com/beta/external/connections/',parameters('connections_servicenow_name'))]"
+        "graphConnectorUrl": "[concat('https://graph.microsoft.com/v1.0/external/connections/',parameters('connections_servicenow_name'))]"
     },
     "resources": [
 
@@ -215,7 +215,7 @@
                                     }
                                 },
                                 "method": "POST",
-                                "uri": "https://graph.microsoft.com/beta/external/connections"
+                                "uri": "https://graph.microsoft.com/v1.0/external/connections"
                             },
                             "runAfter": {
                                 "Check_ServiceNowSearchConnector_exists": [
