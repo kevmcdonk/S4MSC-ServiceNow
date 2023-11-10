@@ -123,10 +123,10 @@ resource workflows_SearchConnectorSetup_name 'Microsoft.Logic/workflows@2017-07-
                               items: [
                                 {
                                   type: 'Image'
-                                  url: 'https://searchuxcdn.blob.core.windows.net/designerapp/images/DefaultMRTIcon.png'
+                                  url: 'https://upload.wikimedia.org/wikipedia/commons/5/57/ServiceNow_logo.svg'
                                   size: 'Small'
                                   horizontalAlignment: 'Center'
-                                  description: 'Thumbnail image'
+                                  altText: 'ServiceNow logo'
                                 }
                               ]
                               height: 'stretch'
@@ -134,16 +134,13 @@ resource workflows_SearchConnectorSetup_name 'Microsoft.Logic/workflows@2017-07-
                             {
                               type: 'Column'
                               width: 8
-                              horizontalAlignment: 'Center'
-                              spacing: 'Medium'
                               items: [
                                 {
                                   type: 'TextBlock'
-                                  text: 'https://${snowInstance}.service-now.com/'
-                                  weight: 'Bolder'
+                                  text: '[\${name}](\${propertylink})'
                                   color: 'Accent'
                                   size: 'Medium'
-                                  maxLines: 3
+                                  weight: 'Bolder'
                                 }
                                 {
                                   type: 'TextBlock'
@@ -153,6 +150,8 @@ resource workflows_SearchConnectorSetup_name 'Microsoft.Logic/workflows@2017-07-
                                   spacing: 'Medium'
                                 }
                               ]
+                              horizontalAlignment: 'Center'
+                              spacing: 'Medium'
                             }
                             {
                               type: 'Column'
@@ -161,8 +160,9 @@ resource workflows_SearchConnectorSetup_name 'Microsoft.Logic/workflows@2017-07-
                                 {
                                   type: 'Image'
                                   url: '\${image}'
-                                  description: '\${description}'
-                                  horizontalAlignment: 'Center'
+                                  altText: 'Result logo'
+                                  size: 'Medium'
+                                  horizontalAlignment: 'Right'
                                 }
                               ]
                               '$when': '\${image != \'\'}'
@@ -483,12 +483,6 @@ resource workflows_SearchConnectorSearch_name 'Microsoft.Logic/workflows@2017-07
           foreach: '@body(\'List_Records\')?[\'result\']'
           actions: {
             Create_index_if_not_exists: {
-              runAfter: {
-                Get_item_from_index_by_Product_Id: [
-                  'Failed'
-                ]
-              }
-              type: 'Http'
               inputs: {
                 authentication: {
                   audience: 'https://graph.microsoft.com'
@@ -514,66 +508,71 @@ resource workflows_SearchConnectorSearch_name 'Microsoft.Logic/workflows@2017-07
                     cost: '@float(items(\'For_each\')?[\'cost\'])'
                     description: '@{items(\'For_each\')?[\'description\']}'
                     group: '@{items(\'For_each\')?[\'group\']}'
+                    image: '@{items(\'For_each\')?[\'image\']}'
                     name: '@{items(\'For_each\')?[\'name\']}'
                     order: '@float(items(\'For_each\')?[\'order\'])'
                     price: '@float(items(\'For_each\')?[\'price\'])'
+                    productid: '@{items(\'For_each\')?[\'sys_id\']}'
+                    productlink: 'https://${snowInstance}.service-now.com/now/nav/ui/classic/params/target/com.glideapp.servicecatalog_cat_item_view.do%3Fv%3D1%26sysparm_id%3D@{items(\'for_each\')?[\'sys_id\']}'
                     shortdescription: '@{items(\'For_each\')?[\'short_description\']}'
                   }
                   type: 'microsoft.graph.externalItem'
                 }
                 method: 'PUT'
-                uri: '${graphConnectorUrl}/items/@{items(\'For_each\')?[\'sys_id\']}'
+                uri: 'https://graph.microsoft.com/v1.0/external/connections/S4MSCSNow/items/@{items(\'For_each\')?[\'sys_id\']}'
               }
             }
-            Get_item_from_index_by_Product_Id: {
-              runAfter: {}
-              type: 'Http'
-              inputs: {
-                authentication: {
-                  audience: 'https://graph.microsoft.com'
-                  clientId: clientId
-                  secret: secret
-                  tenant: tenantId
-                  type: 'ActiveDirectoryOAuth'
-                }
-                method: 'GET'
-                uri: '${graphConnectorUrl}/items/@{items(\'For_each\')?[\'sys_id\']}'
+            runAfter: {}
+            type: 'Http'
+          }
+          Get_item_from_index_by_Product_Id: {
+            runAfter: {}
+            type: 'Http'
+            inputs: {
+              authentication: {
+                audience: 'https://graph.microsoft.com'
+                clientId: clientId
+                secret: secret
+                tenant: tenantId
+                type: 'ActiveDirectoryOAuth'
               }
-            }
-          }
-          runAfter: {
-            List_Records: [
-              'Succeeded'
-            ]
-          }
-          type: 'Foreach'
-          runtimeConfiguration: {
-            concurrency: {
-              repetitions: 1
+              method: 'GET'
+              uri: '${graphConnectorUrl}/items/@{items(\'For_each\')?[\'sys_id\']}'
             }
           }
         }
-        List_Records: {
-          runAfter: {}
-          type: 'ApiConnection'
-          inputs: {
-            host: {
-              connection: {
-                name: '@parameters(\'$connections\')[\'service-now\'][\'connectionId\']'
-              }
-            }
-            method: 'get'
-            path: '/api/now/v2/table/@{encodeURIComponent(\'pc_product_cat_item\')}'
-            queries: {
-              sysparm_display_value: false
-              sysparm_exclude_reference_link: true
-              sysparm_query: 'fields=price,product_id,sys_name,model,state,group,order,image,active,name,vendor_catalog_item,short_description,icon,description,availability,owner,list_price,recurring_price'
-            }
+        runAfter: {
+          List_Records: [
+            'Succeeded'
+          ]
+        }
+        type: 'Foreach'
+        runtimeConfiguration: {
+          concurrency: {
+            repetitions: 1
           }
         }
       }
-      outputs: {}
+      List_Records: {
+        runAfter: {}
+        type: 'ApiConnection'
+        inputs: {
+          host: {
+            connection: {
+              name: '@parameters(\'$connections\')[\'service-now\'][\'connectionId\']'
+            }
+          }
+          method: 'get'
+          path: '/api/now/v2/table/@{encodeURIComponent(\'pc_product_cat_item\')}'
+          queries: {
+            sysparm_display_value: false
+            sysparm_exclude_reference_link: true
+            sysparm_query: 'fields=price,product_id,sys_name,model,state,group,order,image,active,name,vendor_catalog_item,short_description,icon,description,availability,owner,list_price,recurring_price'
+          }
+        }
+      }
     }
+    outputs: {}
     parameters: {
       '$connections': {
         value: {

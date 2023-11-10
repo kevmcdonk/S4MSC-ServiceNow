@@ -160,10 +160,10 @@
                                                                     "items": [
                                                                         {
                                                                             "type": "Image",
-                                                                            "url": "https://searchuxcdn.blob.core.windows.net/designerapp/images/DefaultMRTIcon.png",
+                                                                            "url": "https://upload.wikimedia.org/wikipedia/commons/5/57/ServiceNow_logo.svg",
                                                                             "size": "Small",
                                                                             "horizontalAlignment": "Center",
-                                                                            "description": "Thumbnail image"
+                                                                            "altText": "ServiceNow logo"
                                                                         }
                                                                     ],
                                                                     "height": "stretch"
@@ -171,16 +171,13 @@
                                                                 {
                                                                     "type": "Column",
                                                                     "width": 8,
-                                                                    "horizontalAlignment": "Center",
-                                                                    "spacing": "Medium",
                                                                     "items": [
                                                                         {
                                                                             "type": "TextBlock",
-                                                                            "text": "[concat('https://',parameters('snowInstance'),'.service-now.com/')]",
-                                                                            "weight": "Bolder",
+                                                                            "text": "[${name}](${propertylink})",
                                                                             "color": "Accent",
                                                                             "size": "Medium",
-                                                                            "maxLines": 3
+                                                                            "weight": "Bolder"
                                                                         },
                                                                         {
                                                                             "type": "TextBlock",
@@ -189,7 +186,9 @@
                                                                             "maxLines": 3,
                                                                             "spacing": "Medium"
                                                                         }
-                                                                    ]
+                                                                    ],
+                                                                    "horizontalAlignment": "Center",
+                                                                    "spacing": "Medium"
                                                                 },
                                                                 {
                                                                     "type": "Column",
@@ -198,8 +197,9 @@
                                                                         {
                                                                             "type": "Image",
                                                                             "url": "${image}",
-                                                                            "description": "${description}",
-                                                                            "horizontalAlignment": "Center"
+                                                                            "altText": "Result logo",
+                                                                            "size": "Medium",
+                                                                            "horizontalAlignment": "Right"
                                                                         }
                                                                     ],
                                                                     "$when": "${image != ''}"
@@ -613,18 +613,19 @@
                         }
                     }
                 },
-                "outputs": {}
-            },
-            "parameters": {
-                "$connections": {
-                    "value": {
-                        "service-now": {
-                            "connectionId": "[resourceId('Microsoft.Web/connections', 'service-now')]",
-                            "connectionName": "service-now",
-                            "id": "[concat('/subscriptions/',subscription().subscriptionId,'/providers/Microsoft.Web/locations/',parameters('region'),'/managedApis/service-now')]"
+                "outputs": {},
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "service-now": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', 'service-now')]",
+                                "connectionName": "service-now",
+                                "id": "[concat('/subscriptions/',subscription().subscriptionId,'/providers/Microsoft.Web/locations/',parameters('region'),'/managedApis/service-now')]"
+                            }
                         }
                     }
                 }
             }
         }
-} ] }
+    ]
+}
