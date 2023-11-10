@@ -8,9 +8,9 @@
                         "inputs": {
                             "authentication": {
                                 "audience": "https://graph.microsoft.com",
-                                "clientId": "b1a79309-6254-4a6d-bac2-54e00ad515c6",
-                                "secret": "g2q8Q~P0WRLuy65b3oZABZ4PdPBkp3~xVWKzEcyT",
-                                "tenant": "b618d3d2-c131-42fd-a629-3711d84af275",
+                                "clientId": "",
+                                "secret": "",
+                                "tenant": "",
                                 "type": "ActiveDirectoryOAuth"
                             },
                             "body": {
@@ -19,7 +19,7 @@
                                         "accessType": "grant",
                                         "identitySource": "azureActiveDirectory",
                                         "type": "everyone",
-                                        "value": ""
+                                        "value": "43c5e796-f484-4157-8c93-73ac8b1cf7bf"
                                     }
                                 ],
                                 "content": {
@@ -27,39 +27,21 @@
                                     "value": "@{items('For_each')?['sys_name']}"
                                 },
                                 "properties": {
-                                    "cost": "@{items('For_each')?['cost']}",
+                                    "cost": "@float(items('For_each')?['cost'])",
                                     "description": "@{items('For_each')?['description']}",
                                     "group": "@{items('For_each')?['group']}",
+                                    "image": "@{items('For_each')?['image']}",
                                     "name": "@{items('For_each')?['name']}",
-                                    "order": "@{items('For_each')?['order']}",
-                                    "price": "@{items('For_each')?['price']}",
-                                    "productid": "@{items('For_each')?['product_id']}",
+                                    "order": "@float(items('For_each')?['order'])",
+                                    "price": "@float(items('For_each')?['price'])",
+                                    "productid": "@{items('For_each')?['sys_id']}",
+                                    "productlink": "https://devXXXX.service-now.com/now/nav/ui/classic/params/target/com.glideapp.servicecatalog_cat_item_view.do%3Fv%3D1%26sysparm_id%3D@{items('For_each')?['sys_id']}",
                                     "shortdescription": "@{items('For_each')?['short_description']}"
                                 },
                                 "type": "microsoft.graph.externalItem"
                             },
                             "method": "PUT",
-                            "uri": "https://graph.microsoft.com/beta/external/connections/S4MSCServiceNowSearchConnector/items/@{items('For_each')?['product_id']}"
-                        },
-                        "runAfter": {
-                            "Get_item_from_index_by_Product_Id": [
-                                "SKIPPED",
-                                "FAILED"
-                            ]
-                        },
-                        "type": "Http"
-                    },
-                    "Get_item_from_index_by_Product_Id": {
-                        "inputs": {
-                            "authentication": {
-                                "audience": "https://graph.microsoft.com",
-                                "clientId": "b1a79309-6254-4a6d-bac2-54e00ad515c6",
-                                "secret": "g2q8Q~P0WRLuy65b3oZABZ4PdPBkp3~xVWKzEcyT",
-                                "tenant": "b618d3d2-c131-42fd-a629-3711d84af275",
-                                "type": "ActiveDirectoryOAuth"
-                            },
-                            "method": "GET",
-                            "uri": "https://graph.microsoft.com/beta/external/connections/S4MSCServiceNowSearchConnector/items/@{items('For_each')?['product_id']}"
+                            "uri": "https://graph.microsoft.com/v1.0/external/connections/S4MSCSNow/items/@{items('For_each')?['sys_id']}"
                         },
                         "runAfter": {},
                         "type": "Http"
@@ -70,6 +52,11 @@
                     "List_Records": [
                         "Succeeded"
                     ]
+                },
+                "runtimeConfiguration": {
+                    "concurrency": {
+                        "repetitions": 1
+                    }
                 },
                 "type": "Foreach"
             },
@@ -114,9 +101,9 @@
         "$connections": {
             "value": {
                 "service-now": {
-                    "connectionId": "/subscriptions/c6f9fb91-7294-4aad-8826-219820a8d8bb/resourceGroups/S4MSC-ServiceNow/providers/Microsoft.Web/connections/service-now",
+                    "connectionId": "/subscriptions/SUBSCRIPTIONID/resourceGroups/S4MSCSNow/providers/Microsoft.Web/connections/service-now",
                     "connectionName": "service-now",
-                    "id": "/subscriptions/c6f9fb91-7294-4aad-8826-219820a8d8bb/providers/Microsoft.Web/locations/westeurope/managedApis/service-now"
+                    "id": "/subscriptions/SUBSCRIPTIONID/providers/Microsoft.Web/locations/uksouth/managedApis/service-now"
                 }
             }
         }

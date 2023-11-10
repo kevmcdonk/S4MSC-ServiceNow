@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "connections_servicenow_name": {
-            "value": "SNowTest3"
+            "value": "S4MSCSNow"
         },
         "tenantId": {
             "value": "b618d3d2-c131-42fd-a629-3711d84af275"

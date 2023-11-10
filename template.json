@@ -114,7 +114,7 @@
                                 "uri": "[concat(variables('graphConnectorUrl'),'/schema')]"
                             },
                             "runAfter": {
-                                "HTTP": [
+                                "Update_schema_if_exists": [
                                     "Succeeded",
                                     "Skipped"
                                 ]
@@ -257,6 +257,14 @@
                                             "isRefinable": false,
                                             "isRetrievable": true,
                                             "isSearchable": true,
+                                            "name": "productlink",
+                                            "type": "String"
+                                        },
+                                        {
+                                            "isQueryable": true,
+                                            "isRefinable": false,
+                                            "isRetrievable": true,
+                                            "isSearchable": true,
                                             "name": "group",
                                             "type": "String"
                                         },
@@ -360,7 +368,7 @@
                             },
                             "type": "Http"
                         },
-                        "HTTP": {
+                        "Update_schema_if_exists": {
                             "inputs": {
                                 "authentication": {
                                     "audience": "https://graph.microsoft.com",
@@ -514,12 +522,7 @@
                             "foreach": "@body('List_Records')?['result']",
                             "actions": {
                                 "Create_index_if_not_exists": {
-                                    "runAfter": {
-                                        "Get_item_from_index_by_Product_Id": [
-                                            "Failed"
-                                        ]
-                                    },
-                                    "type": "Http",
+
                                     "inputs": {
                                         "authentication": {
                                             "audience": "https://graph.microsoft.com",
@@ -545,78 +548,83 @@
                                                 "cost": "@float(items('For_each')?['cost'])",
                                                 "description": "@{items('For_each')?['description']}",
                                                 "group": "@{items('For_each')?['group']}",
+                                                "image": "@{items('For_each')?['image']}",
                                                 "name": "@{items('For_each')?['name']}",
                                                 "order": "@float(items('For_each')?['order'])",
                                                 "price": "@float(items('For_each')?['price'])",
+                                                "productid": "@{items('For_each')?['sys_id']}",
+                                                "productlink": "[concat('https://',parameters('snowInstance'),'.service-now.com/now/nav/ui/classic/params/target/com.glideapp.servicecatalog_cat_item_view.do%3Fv%3D1%26sysparm_id%3D@{items(''for_each'')?[''sys_id'']}')]",
                                                 "shortdescription": "@{items('For_each')?['short_description']}"
                                             },
                                             "type": "microsoft.graph.externalItem"
                                         },
                                         "method": "PUT",
-                                        "uri": "[concat(variables('graphConnectorUrl'),'/items/@{items(''For_each'')?[''sys_id'']}')]"
+                                        "uri": "https://graph.microsoft.com/v1.0/external/connections/S4MSCSNow/items/@{items('For_each')?['sys_id']}"
                                     }
+
                                 },
-                                "Get_item_from_index_by_Product_Id": {
-                                    "runAfter": {},
-                                    "type": "Http",
-                                    "inputs": {
-                                        "authentication": {
-                                            "audience": "https://graph.microsoft.com",
-                                            "clientId": "[parameters('clientId')]",
-                                            "secret": "[parameters('secret')]",
-                                            "tenant": "[parameters('tenantId')]",
-                                            "type": "ActiveDirectoryOAuth"
-                                        },
-                                        "method": "GET",
-                                        "uri": "[concat(variables('graphConnectorUrl'),'/items/@{items(''For_each'')?[''sys_id'']}')]"
-                                    }
-                                }
+                                "runAfter": {},
+                                "type": "Http"
                             },
-                            "runAfter": {
-                                "List_Records": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Foreach",
-                            "runtimeConfiguration": {
-                                "concurrency": {
-                                    "repetitions": 1
+                            "Get_item_from_index_by_Product_Id": {
+                                "runAfter": {},
+                                "type": "Http",
+                                "inputs": {
+                                    "authentication": {
+                                        "audience": "https://graph.microsoft.com",
+                                        "clientId": "[parameters('clientId')]",
+                                        "secret": "[parameters('secret')]",
+                                        "tenant": "[parameters('tenantId')]",
+                                        "type": "ActiveDirectoryOAuth"
+                                    },
+                                    "method": "GET",
+                                    "uri": "[concat(variables('graphConnectorUrl'),'/items/@{items(''For_each'')?[''sys_id'']}')]"
                                 }
                             }
                         },
-                        "List_Records": {
-                            "runAfter": {},
-                            "type": "ApiConnection",
-                            "inputs": {
-                                "host": {
-                                    "connection": {
-                                        "name": "@parameters('$connections')['service-now']['connectionId']"
-                                    }
-                                },
-                                "method": "get",
-                                "path": "/api/now/v2/table/@{encodeURIComponent('pc_product_cat_item')}",
-                                "queries": {
-                                    "sysparm_display_value": false,
-                                    "sysparm_exclude_reference_link": true,
-                                    "sysparm_query": "fields=price,product_id,sys_name,model,state,group,order,image,active,name,vendor_catalog_item,short_description,icon,description,availability,owner,list_price,recurring_price"
-                                }
+                        "runAfter": {
+                            "List_Records": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "Foreach",
+                        "runtimeConfiguration": {
+                            "concurrency": {
+                                "repetitions": 1
                             }
                         }
                     },
-                    "outputs": {}
-                },
-                "parameters": {
-                    "$connections": {
-                        "value": {
-                            "service-now": {
-                                "connectionId": "[resourceId('Microsoft.Web/connections', 'service-now')]",
-                                "connectionName": "service-now",
-                                "id": "[concat('/subscriptions/',subscription().subscriptionId,'/providers/Microsoft.Web/locations/',parameters('region'),'/managedApis/service-now')]"
+                    "List_Records": {
+                        "runAfter": {},
+                        "type": "ApiConnection",
+                        "inputs": {
+                            "host": {
+                                "connection": {
+                                    "name": "@parameters('$connections')['service-now']['connectionId']"
+                                }
+                            },
+                            "method": "get",
+                            "path": "/api/now/v2/table/@{encodeURIComponent('pc_product_cat_item')}",
+                            "queries": {
+                                "sysparm_display_value": false,
+                                "sysparm_exclude_reference_link": true,
+                                "sysparm_query": "fields=price,product_id,sys_name,model,state,group,order,image,active,name,vendor_catalog_item,short_description,icon,description,availability,owner,list_price,recurring_price"
                             }
+                        }
+                    }
+                },
+                "outputs": {}
+            },
+            "parameters": {
+                "$connections": {
+                    "value": {
+                        "service-now": {
+                            "connectionId": "[resourceId('Microsoft.Web/connections', 'service-now')]",
+                            "connectionName": "service-now",
+                            "id": "[concat('/subscriptions/',subscription().subscriptionId,'/providers/Microsoft.Web/locations/',parameters('region'),'/managedApis/service-now')]"
                         }
                     }
                 }
             }
         }
-    ]
-}
+} ] }

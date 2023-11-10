@@ -9,7 +9,7 @@ param snowPassword string = ''
 
 var workflows_SearchConnectorSetup_name_var = 'la-${connections_servicenow_name}-setup'
 var workflows_SearchConnectorSearch_name_var = 'la-${connections_servicenow_name}-search'
-var graphConnectorUrl = 'https://graph.microsoft.com/beta/external/connections/${connections_servicenow_name}'
+var graphConnectorUrl = 'https://graph.microsoft.com/v1.0/external/connections/${connections_servicenow_name}'
 
 resource service_now 'Microsoft.Web/connections@2016-06-01' = {
   name: 'service-now'
@@ -77,7 +77,7 @@ resource workflows_SearchConnectorSetup_name 'Microsoft.Logic/workflows@2017-07-
             uri: '${graphConnectorUrl}/schema'
           }
           runAfter: {
-            'Create_S4MSC-ServiceNowSearchConnector_if_not_exist': [
+            Update_schema_if_exists: [
               'Succeeded'
               'Skipped'
             ]
@@ -97,7 +97,6 @@ resource workflows_SearchConnectorSetup_name 'Microsoft.Logic/workflows@2017-07-
               description: 'Connector for showing key tweets'
               id: connections_servicenow_name
               name: 'ServiceNow Connector'
-              state: 'ready'
               enabledContentExperiences: 'search'
               configuration: {
                 authorizedApps: [
@@ -140,7 +139,7 @@ resource workflows_SearchConnectorSetup_name 'Microsoft.Logic/workflows@2017-07-
                               items: [
                                 {
                                   type: 'TextBlock'
-                                  text: 'https://dev165113.service-now.com/'
+                                  text: 'https://${snowInstance}.service-now.com/'
                                   weight: 'Bolder'
                                   color: 'Accent'
                                   size: 'Medium'
@@ -179,7 +178,7 @@ resource workflows_SearchConnectorSetup_name 'Microsoft.Logic/workflows@2017-07-
               }
             }
             method: 'POST'
-            uri: 'https://graph.microsoft.com/beta/external/connections'
+            uri: 'https://graph.microsoft.com/v1.0/external/connections'
           }
           runAfter: {
             Check_ServiceNowSearchConnector_exists: [
@@ -214,6 +213,14 @@ resource workflows_SearchConnectorSetup_name 'Microsoft.Logic/workflows@2017-07-
                   isRetrievable: true
                   isSearchable: true
                   name: 'productid'
+                  type: 'String'
+                }
+                {
+                  isQueryable: true
+                  isRefinable: false
+                  isRetrievable: true
+                  isSearchable: true
+                  name: 'productlink'
                   type: 'String'
                 }
                 {
@@ -320,6 +327,109 @@ resource workflows_SearchConnectorSetup_name 'Microsoft.Logic/workflows@2017-07-
           runAfter: {
             Check_schema_exists: [
               'Failed'
+            ]
+          }
+          type: 'Http'
+        }
+        Update_schema_if_exists: {
+          inputs: {
+            authentication: {
+              audience: 'https://graph.microsoft.com'
+              clientId: clientId
+              secret: secret
+              tenant: tenantId
+              type: 'ActiveDirectoryOAuth'
+            }
+            body: {
+              description: 'Connector for showing key tweets'
+              id: connections_servicenow_name
+              name: 'ServiceNow Connector'
+              enabledContentExperiences: 'search'
+              configuration: {
+                authorizedApps: [
+                  clientId
+                ]
+                authorizedAppIds: [
+                  clientId
+                ]
+              }
+              searchSettings: {
+                searchResultTemplates: [
+                  {
+                    id: connections_servicenow_name
+                    layout: {
+                      type: 'AdaptiveCard'
+                      version: '1.3'
+                      body: [
+                        {
+                          type: 'ColumnSet'
+                          columns: [
+                            {
+                              type: 'Column'
+                              width: 'auto'
+                              items: [
+                                {
+                                  type: 'Image'
+                                  url: 'https://searchuxcdn.blob.core.windows.net/designerapp/images/DefaultMRTIcon.png'
+                                  size: 'Small'
+                                  horizontalAlignment: 'Center'
+                                  description: 'Thumbnail image'
+                                }
+                              ]
+                              height: 'stretch'
+                            }
+                            {
+                              type: 'Column'
+                              width: 8
+                              horizontalAlignment: 'Center'
+                              spacing: 'Medium'
+                              items: [
+                                {
+                                  type: 'TextBlock'
+                                  text: 'https://${snowInstance}.service-now.com/'
+                                  weight: 'Bolder'
+                                  color: 'Accent'
+                                  size: 'Medium'
+                                  maxLines: 3
+                                }
+                                {
+                                  type: 'TextBlock'
+                                  text: '\${description}'
+                                  wrap: true
+                                  maxLines: 3
+                                  spacing: 'Medium'
+                                }
+                              ]
+                            }
+                            {
+                              type: 'Column'
+                              width: 2
+                              items: [
+                                {
+                                  type: 'Image'
+                                  url: '\${image}'
+                                  description: '\${description}'
+                                  horizontalAlignment: 'Center'
+                                }
+                              ]
+                              '$when': '\${image != \'\'}'
+                            }
+                          ]
+                        }
+                      ]
+                      '$schema': 'http://adaptivecards.io/schemas/adaptive-card.json'
+                    }
+                    priority: 0
+                  }
+                ]
+              }
+            }
+            method: 'PATCH'
+            uri: graphConnectorUrl
+          }
+          runAfter: {
+            'Create_S4MSC-ServiceNowSearchConnector_if_not_exist': [
+              'Skipped'
             ]
           }
           type: 'Http'
